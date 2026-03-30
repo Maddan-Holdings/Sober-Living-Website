@@ -5,4 +5,4 @@ title: Home
 
 # Welcome
 
-[Contact](/contact)
+[Contact](/Contact)
