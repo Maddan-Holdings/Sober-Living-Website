@@ -1,6 +1,8 @@
 theme: minima
+
+title: Sober Living Website
+description: Sober Living Program Website for intake requests and details about the program
+
 header_pages:
   - index.md
   - about.md
-  - contact.md
-  - test.md
