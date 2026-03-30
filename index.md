@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Home
-title: Contact(/Contact)
 ---
 
 # Welcome
