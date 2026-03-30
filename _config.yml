@@ -6,3 +6,5 @@ description: Sober Living Program Website for intake requests and details about 
 header_pages:
   - index.md
   - about.md
+  - contact.md
+  - test.md
