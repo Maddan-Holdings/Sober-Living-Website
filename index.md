@@ -4,5 +4,5 @@ title: Home
 ---
 
 # Welcome
-[About] (/about)
+[About](/about)
 This is my GitHub Pages site. 
