@@ -5,5 +5,4 @@ title: Contact
 ---
 
 # Welcome
-
-[Contact](/Contact)
+### this is just some text
