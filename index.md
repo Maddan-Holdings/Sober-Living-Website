@@ -4,5 +4,6 @@ title: Home
 ---
 
 # Welcome
-[About](/about)
-This is my GitHub Pages site. 
+<a href="/about" style="padding:10px 15px; background:#007bff; color:white; text-decoration:none; border-radius:5px;">
+  About
+</a>
