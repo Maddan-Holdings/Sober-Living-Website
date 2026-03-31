@@ -141,6 +141,11 @@
     <script src="https://unpkg.com/grapesjs-custom-code"></script>
     <script src="https://unpkg.com/grapesjs-tooltip"></script>
     <script src="https://unpkg.com/grapesjs-component-countdown"></script>
+    <script src="https://unpkg.com/grapesjs-plugin-export"></script>
+    <script src="https://unpkg.com/grapesjs-parser-postcss"></script>
+    <script src="https://unpkg.com/grapesjs-touch"></script>
+    <script src="https://unpkg.com/grapesjs-style-bg"></script>
+    <script src="https://unpkg.com/grapesjs-typed"></script>
     <script>
       const STORAGE_KEY = 'grapes_publish_token';
       const BRANCH = 'main';
@@ -283,6 +288,11 @@ ${html}
           'gjs-custom-code',
           'gjs-tooltip',
           'gjs-component-countdown',
+          'gjs-plugin-export',
+          'grapesjs-parser-postcss',
+          'grapesjs-touch',
+          'grapesjs-style-bg',
+          'grapesjs-typed',
         ],
         pluginsOpts: {
           'gjs-preset-webpage': {
@@ -298,13 +308,18 @@ ${html}
           'gjs-custom-code': {},
           'gjs-tooltip': {},
           'gjs-component-countdown': {},
+          'gjs-plugin-export': {},
+          'grapesjs-parser-postcss': {},
+          'grapesjs-touch': {},
+          'grapesjs-style-bg': {},
+          'grapesjs-typed': {},
         },
       });
 
       editor.setComponents(`
         <section style="padding: 48px 20px; text-align: center;">
           <h1 style="margin: 0 0 12px;">Welcome to your GrapesJS Builder</h1>
-          <p style="margin: 0;">Use the right panel blocks, then click Publish Live when done.</p>
+          <p style="margin: 0;">Use blocks, styles, traits, layers, and plugins like in the GrapesJS demo.</p>
         </section>
       `);
 
