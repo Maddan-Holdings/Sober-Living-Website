@@ -1,22 +1,14 @@
----
-layout: default
-title: "Sober Living in Bowling Green, KY"
-description: "Sober University provides supportive sober living and recovery housing in Bowling Green, KY. Safe, comfortable homes and a supportive community."
-keywords: "sober living Bowling Green, sober homes, recovery housing"
----
-<!--
-Home page
-This file is Markdown and uses the `default` layout defined in _layouts/default.html
--->
-
-# Welcome to Sober University — Bowling Green, KY
-
-Sober University provides supportive sober living and recovery housing in Bowling Green, KY. Our homes focus on safety, community, and long-term stability.
-
-- Supportive community in Bowling Green
-- Simple intake and clear expectations
-- Comfortable, well-managed homes near local resources
-
-Call us: **270-306-4252**
-
-<a href="/contact.html" class="btn btn--primary">Contact Us</a>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exported Page</title>
+  <style>
+* { box-sizing: border-box; } body {margin: 0;}#i2el{margin:0 0 12px;background-color:#000000;}#ib5e{margin:0;}#ie9g{padding:48px 20px;text-align:center;background-color:#000000;}
+  </style>
+</head>
+<body>
+<body><h1 id="i2el">Welcome to your GrapesJS Builder</h1><section id="ie9g"><p id="ib5e">Drag blocks from the right panel into this canvas.</p></section></body>
+</body>
+</html>
