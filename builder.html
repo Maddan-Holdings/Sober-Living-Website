@@ -23,6 +23,23 @@
         margin: 0;
         height: 100%;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        background: #f3f4f6;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #f3f4f6;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #f3f4f6;
       }
 
       body {
@@ -586,45 +603,141 @@ ${html}
         category: blockCategory,
         content: '<a href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Button</a>',
       });
-      bm.add('extra-divider', {
-        label: 'Divider',
-        category: blockCategory,
-        content: '<hr style="margin:24px 0;border:none;border-top:1px solid #d1d5db;" />',
+
+      refreshPageSelector(editor);
+      refreshInternalPageTraitOptions(editor);
+
+      editor.on('page', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
       });
-      bm.add('extra-list', {
-        label: 'List',
-        category: blockCategory,
-        content: '<ul><li>List item</li><li>List item</li><li>List item</li></ul>',
+      editor.on('page:select', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
       });
-      bm.add('extra-table', {
-        label: 'Table',
-        category: blockCategory,
-        content: '<table style="width:100%;border-collapse:collapse;"><tr><th style="border:1px solid #ccc;padding:8px;">Header</th><th style="border:1px solid #ccc;padding:8px;">Header</th></tr><tr><td style="border:1px solid #ccc;padding:8px;">Cell</td><td style="border:1px solid #ccc;padding:8px;">Cell</td></tr></table>',
+      editor.on('storage:store', () => {
+        statusEl.textContent = 'Saved locally.';
       });
-      bm.add('extra-map', {
-        label: 'Map',
-        category: blockCategory,
-        content: '<iframe width="100%" height="300" frameborder="0" style="border:0" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=los%20angeles&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>',
+
+      document.getElementById('menu-toggle').addEventListener('click', e => {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('open');
       });
-      bm.add('extra-video', {
-        label: 'YouTube',
-        category: blockCategory,
-        content: '<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allowfullscreen></iframe>',
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
       });
-      bm.add('extra-form', {
-        label: 'Form',
-        category: blockCategory,
-        content: '<form><div style="margin-bottom:10px;"><label>Name</label><input type="text" name="name" style="display:block;width:100%;padding:8px;" /></div><div style="margin-bottom:10px;"><label>Email</label><input type="email" name="email" style="display:block;width:100%;padding:8px;" /></div><button type="submit">Submit</button></form>',
+
+      pageSelector.addEventListener('change', e => {
+        const target = editor.Pages.get(e.target.value);
+        if (target) editor.Pages.select(target);
       });
-      bm.add('extra-tabs', {
-        label: 'Tabs',
-        category: blockCategory,
-        content: '<div data-gjs-type="tabs"><div data-gjs-type="tab-container"><div data-gjs-type="tab-active">Tab 1</div><div>Tab 2</div></div><div data-gjs-type="tab-content"><div data-gjs-type="tab-active">Tab 1 content</div><div>Tab 2 content</div></div></div>',
+
+      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
+
+      document.getElementById('rename-page').addEventListener('click', () => {
+        const page = editor.Pages.getSelected();
+        if (!page) return;
+
+        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
+        if (!nextName) return;
+
+        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
+        page.set('name', nextName.trim());
+        page.set('slug', slugify(nextSlugInput || nextName));
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = `Renamed page to "${nextName}".`;
       });
-      bm.add('extra-countdown', {
-        label: 'Countdown',
-        category: blockCategory,
-        content: '<div data-gjs-type="countdown" data-end-time="2027-01-01T00:00:00"></div>',
+
+      document.getElementById('delete-page').addEventListener('click', () => {
+        const pages = editor.Pages.getAll();
+        if (pages.length <= 1) {
+          statusEl.textContent = 'At least one page is required.';
+          return;
+        }
+
+        const selected = editor.Pages.getSelected();
+        if (!selected) return;
+
+        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
+        if (!ok) return;
+
+        editor.Pages.remove(selected);
+        const first = editor.Pages.getAll().at(0);
+        if (first) editor.Pages.select(first);
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = 'Page deleted.';
+      });
+
+      refreshPageSelector(editor);
+      refreshInternalPageTraitOptions(editor);
+
+      editor.on('page', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('page:select', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('storage:store', () => {
+        statusEl.textContent = 'Saved locally.';
+      });
+
+      document.getElementById('menu-toggle').addEventListener('click', e => {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('open');
+      });
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
+      });
+
+      pageSelector.addEventListener('change', e => {
+        const target = editor.Pages.get(e.target.value);
+        if (target) editor.Pages.select(target);
+      });
+
+      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
+
+      document.getElementById('rename-page').addEventListener('click', () => {
+        const page = editor.Pages.getSelected();
+        if (!page) return;
+
+        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
+        if (!nextName) return;
+
+        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
+        page.set('name', nextName.trim());
+        page.set('slug', slugify(nextSlugInput || nextName));
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = `Renamed page to "${nextName}".`;
+      });
+
+      document.getElementById('delete-page').addEventListener('click', () => {
+        const pages = editor.Pages.getAll();
+        if (pages.length <= 1) {
+          statusEl.textContent = 'At least one page is required.';
+          return;
+        }
+
+        const selected = editor.Pages.getSelected();
+        if (!selected) return;
+
+        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
+        if (!ok) return;
+
+        editor.Pages.remove(selected);
+        const first = editor.Pages.getAll().at(0);
+        if (first) editor.Pages.select(first);
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = 'Page deleted.';
       });
 
       refreshPageSelector(editor);
