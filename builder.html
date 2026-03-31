@@ -1,46 +1,93 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GrapesJS Builder</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrapesJS Builder</title>
 
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/grapesjs/dist/css/grapes.min.css"
-    />
+  <!-- GrapesJS -->
+  <link href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/grapesjs-preset-webpage/dist/grapesjs-preset-webpage.min.css" rel="stylesheet"/>
 
-    <style>
-      html,
-      body {
-        margin: 0;
-        height: 100%;
+  <style>
+    :root {
+      --toolbar-height: 56px;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui;
+    }
+
+    .toolbar {
+      height: var(--toolbar-height);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      background: #f7f7f7;
+    }
+
+    #gjs {
+      height: calc(100vh - var(--toolbar-height));
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toolbar">
+    <button id="copy-html">Copy HTML</button>
+    <button id="download-html">Download HTML</button>
+    <span id="status">Ready</span>
+  </div>
+
+  <div id="gjs"></div>
+
+  <script src="https://unpkg.com/grapesjs"></script>
+  <script src="https://unpkg.com/grapesjs-preset-webpage"></script>
+
+  <script>
+    const editor = grapesjs.init({
+      container: '#gjs',
+      height: '100%',
+      storageManager: false,
+      plugins: ['gjs-preset-webpage'],
+      pluginsOpts: {
+        'gjs-preset-webpage': {}
       }
+    });
 
-      #gjs {
-        height: 100vh;
-        width: 100%;
-        overflow: hidden;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="gjs"></div>
+    function getExportHtml() {
+      const html = editor.getHtml();
+      const css = editor.getCss();
 
-    <script src="https://unpkg.com/grapesjs"></script>
-    <script src="https://unpkg.com/grapesjs-preset-webpage"></script>
-    <script>
-      grapesjs.init({
-        container: '#gjs',
-        fromElement: false,
-        height: '100vh',
-        width: '100%',
-        storageManager: false,
-        plugins: ['gjs-preset-webpage'],
-        pluginsOpts: {
-          'gjs-preset-webpage': {},
-        },
-      });
-    </script>
-  </body>
+      return `
+<!doctype html>
+<html>
+<head>
+<style>${css}</style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+    }
+
+    document.getElementById('copy-html').onclick = async () => {
+      await navigator.clipboard.writeText(getExportHtml());
+      document.getElementById('status').innerText = 'Copied!';
+    };
+
+    document.getElementById('download-html').onclick = () => {
+      const blob = new Blob([getExportHtml()], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'page.html';
+      a.click();
+    };
+  </script>
+
+</body>
 </html>
