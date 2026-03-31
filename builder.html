@@ -1,179 +1,93 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GrapesJS Builder</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrapesJS Builder</title>
 
-    <!-- GrapesJS core styles from CDN -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/grapesjs/dist/css/grapes.min.css"
-    />
+  <!-- GrapesJS -->
+  <link href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/grapesjs-preset-webpage/dist/grapesjs-preset-webpage.min.css" rel="stylesheet"/>
 
-    <style>
-      :root {
-        --toolbar-height: 56px;
+  <style>
+    :root {
+      --toolbar-height: 56px;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui;
+    }
+
+    .toolbar {
+      height: var(--toolbar-height);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      background: #f7f7f7;
+    }
+
+    #gjs {
+      height: calc(100vh - var(--toolbar-height));
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toolbar">
+    <button id="copy-html">Copy HTML</button>
+    <button id="download-html">Download HTML</button>
+    <span id="status">Ready</span>
+  </div>
+
+  <div id="gjs"></div>
+
+  <script src="https://unpkg.com/grapesjs"></script>
+  <script src="https://unpkg.com/grapesjs-preset-webpage"></script>
+
+  <script>
+    const editor = grapesjs.init({
+      container: '#gjs',
+      height: '100%',
+      storageManager: false,
+      plugins: ['gjs-preset-webpage'],
+      pluginsOpts: {
+        'gjs-preset-webpage': {}
       }
+    });
 
-      * {
-        box-sizing: border-box;
-      }
+    function getExportHtml() {
+      const html = editor.getHtml();
+      const css = editor.getCss();
 
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-          sans-serif;
-      }
+      return `
+<!doctype html>
+<html>
+<head>
+<style>${css}</style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+    }
 
-      .toolbar {
-        height: var(--toolbar-height);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #dcdcdc;
-        background: #f7f7f7;
-      }
+    document.getElementById('copy-html').onclick = async () => {
+      await navigator.clipboard.writeText(getExportHtml());
+      document.getElementById('status').innerText = 'Copied!';
+    };
 
-      .toolbar button {
-        border: 1px solid #bdbdbd;
-        background: white;
-        padding: 0.5rem 0.75rem;
-        border-radius: 6px;
-        cursor: pointer;
-      }
+    document.getElementById('download-html').onclick = () => {
+      const blob = new Blob([getExportHtml()], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'page.html';
+      a.click();
+    };
+  </script>
 
-      .toolbar button:hover {
-        background: #f1f1f1;
-      }
-
-      .toolbar .status {
-        color: #555;
-        font-size: 0.9rem;
-      }
-
-      /* Full-page editor area */
-      #gjs {
-        height: calc(100vh - var(--toolbar-height));
-        overflow: hidden;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="toolbar">
-      <button id="copy-html" type="button">Copy HTML</button>
-      <button id="download-html" type="button">Download HTML</button>
-      <span class="status" id="status">Ready</span>
-    </div>
-
-    <div id="gjs"></div>
-
-    <!-- GrapesJS script from CDN -->
-    <script src="https://unpkg.com/grapesjs"></script>
-    <script>
-      const editor = grapesjs.init({
-        container: '#gjs',
-        fromElement: false,
-        height: '100%',
-        width: 'auto',
-        storageManager: false, // Keeps it simple and fully static
-        blockManager: {
-          appendTo: '.gjs-blocks-c',
-        },
-        panels: { defaults: [] },
-        styleManager: {},
-        canvas: {
-          styles: [],
-          scripts: [],
-        },
-      });
-
-      // Add basic starter blocks
-      const bm = editor.BlockManager;
-
-      bm.add('text-block', {
-        label: 'Text',
-        category: 'Basic',
-        content: '<p>Insert your text here</p>',
-      });
-
-      bm.add('image-block', {
-        label: 'Image',
-        category: 'Basic',
-        content:
-          '<img src="https://placehold.co/600x300" alt="Placeholder image" />',
-      });
-
-      bm.add('section-block', {
-        label: 'Section',
-        category: 'Basic',
-        content:
-          '<section style="padding: 40px 20px;"><h2>New Section</h2><p>Add content here.</p></section>',
-      });
-
-      bm.add('button-block', {
-        label: 'Button',
-        category: 'Basic',
-        content:
-          '<a class="gjs-btn" href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Click me</a>',
-      });
-
-      // Seed content so the canvas is not empty for first-time users
-      editor.setComponents(`
-        <main style="padding: 2rem; font-family: Arial, sans-serif;">
-          <h1>Welcome to your visual builder</h1>
-          <p>Drag blocks from the right sidebar into this canvas.</p>
-        </main>
-      `);
-
-      const statusEl = document.getElementById('status');
-
-      function getExportHtml() {
-        const html = editor.getHtml();
-        const css = editor.getCss();
-
-        return `<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Exported Page</title>\n  <style>\n${css}\n  </style>\n</head>\n<body>\n${html}\n</body>\n</html>`;
-      }
-
-      async function copyHtml() {
-        const output = getExportHtml();
-
-        try {
-          await navigator.clipboard.writeText(output);
-          statusEl.textContent = 'HTML copied to clipboard.';
-        } catch (err) {
-          // Fallback for environments where clipboard API is restricted
-          const ta = document.createElement('textarea');
-          ta.value = output;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          statusEl.textContent = 'HTML copied (fallback method).';
-        }
-      }
-
-      function downloadHtml() {
-        const output = getExportHtml();
-        const blob = new Blob([output], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'exported-page.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        URL.revokeObjectURL(url);
-        statusEl.textContent = 'HTML downloaded as exported-page.html.';
-      }
-
-      document.getElementById('copy-html').addEventListener('click', copyHtml);
-      document
-        .getElementById('download-html')
-        .addEventListener('click', downloadHtml);
-    </script>
-  </body>
+</body>
 </html>
