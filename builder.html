@@ -296,7 +296,7 @@ ${html}
         ],
         pluginsOpts: {
           'gjs-preset-webpage': {
-            blocksBasicOpts: { flexGrid: true, blocks: ['column1', 'column2', 'column3', 'text', 'link', 'image', 'video'] },
+            blocksBasicOpts: { flexGrid: true },
             navbarOpts: true,
             formsOpts: true,
             countdownOpts: true,
@@ -322,6 +322,59 @@ ${html}
           <p style="margin: 0;">Use blocks, styles, traits, layers, and plugins like in the GrapesJS demo.</p>
         </section>
       `);
+
+      const bm = editor.BlockManager;
+      const blockCategory = 'Extra Components';
+      bm.add('extra-section', {
+        label: 'Section',
+        category: blockCategory,
+        content: '<section style="padding:40px 20px;"><h2>Section title</h2><p>Add content here.</p></section>',
+      });
+      bm.add('extra-button', {
+        label: 'Button',
+        category: blockCategory,
+        content: '<a href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Button</a>',
+      });
+      bm.add('extra-divider', {
+        label: 'Divider',
+        category: blockCategory,
+        content: '<hr style="margin:24px 0;border:none;border-top:1px solid #d1d5db;" />',
+      });
+      bm.add('extra-list', {
+        label: 'List',
+        category: blockCategory,
+        content: '<ul><li>List item</li><li>List item</li><li>List item</li></ul>',
+      });
+      bm.add('extra-table', {
+        label: 'Table',
+        category: blockCategory,
+        content: '<table style="width:100%;border-collapse:collapse;"><tr><th style="border:1px solid #ccc;padding:8px;">Header</th><th style="border:1px solid #ccc;padding:8px;">Header</th></tr><tr><td style="border:1px solid #ccc;padding:8px;">Cell</td><td style="border:1px solid #ccc;padding:8px;">Cell</td></tr></table>',
+      });
+      bm.add('extra-map', {
+        label: 'Map',
+        category: blockCategory,
+        content: '<iframe width="100%" height="300" frameborder="0" style="border:0" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=los%20angeles&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>',
+      });
+      bm.add('extra-video', {
+        label: 'YouTube',
+        category: blockCategory,
+        content: '<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allowfullscreen></iframe>',
+      });
+      bm.add('extra-form', {
+        label: 'Form',
+        category: blockCategory,
+        content: '<form><div style="margin-bottom:10px;"><label>Name</label><input type="text" name="name" style="display:block;width:100%;padding:8px;" /></div><div style="margin-bottom:10px;"><label>Email</label><input type="email" name="email" style="display:block;width:100%;padding:8px;" /></div><button type="submit">Submit</button></form>',
+      });
+      bm.add('extra-tabs', {
+        label: 'Tabs',
+        category: blockCategory,
+        content: '<div data-gjs-type="tabs"><div data-gjs-type="tab-container"><div data-gjs-type="tab-active">Tab 1</div><div>Tab 2</div></div><div data-gjs-type="tab-content"><div data-gjs-type="tab-active">Tab 1 content</div><div>Tab 2 content</div></div></div>',
+      });
+      bm.add('extra-countdown', {
+        label: 'Countdown',
+        category: blockCategory,
+        content: '<div data-gjs-type="countdown" data-end-time="2027-01-01T00:00:00"></div>',
+      });
 
       document.getElementById('save-token').addEventListener('click', () => {
         const token = tokenInput.value.trim();
