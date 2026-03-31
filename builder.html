@@ -42,6 +42,14 @@
         background: #f3f4f6;
       }
 
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #f3f4f6;
+      }
+
       .builder-topbar {
         flex: 0 0 auto;
         display: flex;
@@ -151,13 +159,6 @@
         background: #1f2937;
         border-color: #4b5563;
         color: #f9fafb;
-      }
-
-      .gjs-pn-panels,
-      .gjs-pn-views,
-      .gjs-pn-devices-c,
-      .gjs-pn-commands {
-        z-index: 5;
       }
 
       .gjs-pn-panels,
@@ -404,7 +405,7 @@ ${html}
         const domc = editor.DomComponents;
         const defaultType = domc.getType('default');
 
-        ['link', 'button'].forEach(typeName => {
+        ['link'].forEach(typeName => {
           const type = domc.getType(typeName);
           if (!type) return;
 
@@ -466,7 +467,11 @@ ${html}
           label: `${page.name} (${page.filename})`,
         }));
 
-        editor.getWrapper().find('a, button').forEach(component => {
+        const wrapper = editor.getWrapper();
+        if (!wrapper) return;
+        const components = [...wrapper.find('a'), ...wrapper.find('button')];
+
+        components.forEach(component => {
           const traits = component.get('traits') || [];
           traits.forEach(trait => {
             if (typeof trait !== 'string' && trait.name === 'internalPage') {
@@ -597,6 +602,74 @@ ${html}
         label: 'Button Link',
         category: blockCategory,
         content: '<a href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Button</a>',
+      });
+
+      refreshPageSelector(editor);
+      refreshInternalPageTraitOptions(editor);
+
+      editor.on('page', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('page:select', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('storage:store', () => {
+        statusEl.textContent = 'Saved locally.';
+      });
+
+      document.getElementById('menu-toggle').addEventListener('click', e => {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('open');
+      });
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
+      });
+
+      pageSelector.addEventListener('change', e => {
+        const target = editor.Pages.get(e.target.value);
+        if (target) editor.Pages.select(target);
+      });
+
+      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
+
+      document.getElementById('rename-page').addEventListener('click', () => {
+        const page = editor.Pages.getSelected();
+        if (!page) return;
+
+        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
+        if (!nextName) return;
+
+        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
+        page.set('name', nextName.trim());
+        page.set('slug', slugify(nextSlugInput || nextName));
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = `Renamed page to "${nextName}".`;
+      });
+
+      document.getElementById('delete-page').addEventListener('click', () => {
+        const pages = editor.Pages.getAll();
+        if (pages.length <= 1) {
+          statusEl.textContent = 'At least one page is required.';
+          return;
+        }
+
+        const selected = editor.Pages.getSelected();
+        if (!selected) return;
+
+        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
+        if (!ok) return;
+
+        editor.Pages.remove(selected);
+        const first = editor.Pages.getAll().at(0);
+        if (first) editor.Pages.select(first);
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = 'Page deleted.';
       });
 
       refreshPageSelector(editor);
