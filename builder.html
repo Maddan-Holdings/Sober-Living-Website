@@ -34,13 +34,21 @@
         background: #f3f4f6;
       }
 
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #f3f4f6;
+      }
+
       .builder-topbar {
         flex: 0 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 0.75rem;
-        padding: 0.6rem 0.75rem;
+        padding: 0.3rem 0.5rem;
         border-bottom: 1px solid #d1d5db;
         background: #f8fafc;
         position: relative;
@@ -55,7 +63,7 @@
       }
 
       .status {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         color: #4b5563;
       }
 
@@ -65,9 +73,8 @@
         border: 1px solid #9ca3af;
         border-radius: 6px;
         background: #fff;
-        padding: 0.4rem 0.65rem;
-        font-size: 0.9rem;
-        max-width: 100%;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.85rem;
       }
 
       button { cursor: pointer; }
@@ -124,6 +131,35 @@
         overflow: hidden;
       }
 
+      .page-toolbar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.45rem;
+        background: #343a40;
+        border-bottom: 1px solid #1f2937;
+      }
+
+      .page-toolbar label {
+        color: #e5e7eb;
+        font-size: 0.8rem;
+      }
+
+      .page-toolbar select,
+      .page-toolbar button {
+        background: #1f2937;
+        border-color: #4b5563;
+        color: #f9fafb;
+      }
+
+      .gjs-pn-panels,
+      .gjs-pn-views,
+      .gjs-pn-devices-c,
+      .gjs-pn-commands {
+        z-index: 5;
+      }
+
       .gjs-pn-panels,
       .gjs-pn-views,
       .gjs-pn-devices-c,
@@ -148,17 +184,6 @@
             </div>
 
             <div class="menu-section">
-              <h4>Pages</h4>
-              <div class="menu-grid">
-                <select id="page-selector" aria-label="Select page"></select>
-                <button id="add-page" type="button">Add Page</button>
-                <button id="rename-page" type="button">Rename Page</button>
-                <button id="delete-page" type="button">Delete Page</button>
-              </div>
-              <div class="menu-note">Tip: first page exports as <code>index.html</code>.</div>
-            </div>
-
-            <div class="menu-section">
               <h4>Publish Settings</h4>
               <div class="menu-grid">
                 <input id="github-token" type="password" placeholder="GitHub token" />
@@ -174,6 +199,14 @@
         <button id="publish-github" type="button">Publish Live</button>
       </div>
     </header>
+
+    <div class="page-toolbar">
+      <label for="page-selector">Page</label>
+      <select id="page-selector" aria-label="Select page"></select>
+      <button id="add-page" type="button">Add</button>
+      <button id="rename-page" type="button">Rename</button>
+      <button id="delete-page" type="button">Delete</button>
+    </div>
 
     <div id="gjs"></div>
 
@@ -564,6 +597,74 @@ ${html}
         label: 'Button Link',
         category: blockCategory,
         content: '<a href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Button</a>',
+      });
+
+      refreshPageSelector(editor);
+      refreshInternalPageTraitOptions(editor);
+
+      editor.on('page', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('page:select', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('storage:store', () => {
+        statusEl.textContent = 'Saved locally.';
+      });
+
+      document.getElementById('menu-toggle').addEventListener('click', e => {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('open');
+      });
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
+      });
+
+      pageSelector.addEventListener('change', e => {
+        const target = editor.Pages.get(e.target.value);
+        if (target) editor.Pages.select(target);
+      });
+
+      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
+
+      document.getElementById('rename-page').addEventListener('click', () => {
+        const page = editor.Pages.getSelected();
+        if (!page) return;
+
+        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
+        if (!nextName) return;
+
+        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
+        page.set('name', nextName.trim());
+        page.set('slug', slugify(nextSlugInput || nextName));
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = `Renamed page to "${nextName}".`;
+      });
+
+      document.getElementById('delete-page').addEventListener('click', () => {
+        const pages = editor.Pages.getAll();
+        if (pages.length <= 1) {
+          statusEl.textContent = 'At least one page is required.';
+          return;
+        }
+
+        const selected = editor.Pages.getSelected();
+        if (!selected) return;
+
+        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
+        if (!ok) return;
+
+        editor.Pages.remove(selected);
+        const first = editor.Pages.getAll().at(0);
+        if (first) editor.Pages.select(first);
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = 'Page deleted.';
       });
 
       refreshPageSelector(editor);
