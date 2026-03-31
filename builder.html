@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GrapesJS Builder</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/grapesjs-preset-webpage/dist/grapesjs-preset-webpage.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/grapesjs-blocks-basic/dist/grapesjs-blocks-basic.min.css"
+    />
+
+    <style>
+      :root {
+        --publish-bar-height: 56px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      .publish-bar {
+        height: var(--publish-bar-height);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #d1d5db;
+        background: #f8fafc;
+        flex-wrap: wrap;
+      }
+
+      .publish-bar button,
+      .publish-bar input {
+        border: 1px solid #9ca3af;
+        border-radius: 6px;
+        background: #fff;
+        padding: 0.4rem 0.65rem;
+        font-size: 0.9rem;
+      }
+
+      .publish-bar input {
+        width: 290px;
+      }
+
+      .publish-bar button {
+        cursor: pointer;
+      }
+
+      .publish-bar .status {
+        font-size: 0.88rem;
+        color: #374151;
+      }
+
+      .publish-help {
+        width: 100%;
+        font-size: 0.8rem;
+        color: #4b5563;
+      }
+
+      .publish-help code {
+        border: 1px solid #c7d2fe;
+        background: #eef2ff;
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+      }
+
+      #gjs {
+        height: calc(100vh - var(--publish-bar-height));
+        width: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="publish-bar">
+      <button id="publish-github" type="button">Publish Live</button>
+      <button id="download-html" type="button">Download index.html</button>
+      <button id="copy-html" type="button">Copy HTML</button>
+      <input id="github-token" type="password" placeholder="Paste GitHub token here (once)" />
+      <button id="save-token" type="button">Save Token</button>
+      <span class="status" id="status">Ready</span>
+      <small class="publish-help"
+        >Token goes in the input above. Click <code>Save Token</code> one time, then use
+        <code>Publish Live</code>.</small
+      >
+    </div>
+
+    <div id="gjs"></div>
+
+    <script src="https://unpkg.com/grapesjs"></script>
+    <script src="https://unpkg.com/grapesjs-preset-webpage"></script>
+    <script src="https://unpkg.com/grapesjs-blocks-basic"></script>
+    <script src="https://unpkg.com/grapesjs-plugin-forms"></script>
+    <script src="https://unpkg.com/grapesjs-navbar"></script>
+    <script src="https://unpkg.com/grapesjs-tabs"></script>
+    <script src="https://unpkg.com/grapesjs-custom-code"></script>
+    <script src="https://unpkg.com/grapesjs-tooltip"></script>
+    <script src="https://unpkg.com/grapesjs-component-countdown"></script>
+    <script>
+      const STORAGE_KEY = 'grapes_publish_token';
+      const BRANCH = 'main';
+
+      function detectRepoFromUrl() {
+        const host = window.location.hostname;
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        let owner = '';
+        let repo = '';
+
+        if (host.endsWith('github.io')) {
+          owner = host.replace('.github.io', '');
+          repo = pathParts[0] || `${owner}.github.io`;
+        }
+
+        return { owner, repo, branch: BRANCH };
+      }
+
+      function getExportHtml(editor) {
+        const html = editor.getHtml();
+        const css = editor.getCss();
+
+        return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site</title>
+  <style>
+${css}
+  </style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+      }
+
+      function utf8ToBase64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+      }
+
+      async function getExistingFileSha(owner, repo, branch, token) {
+        const res = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/contents/index.html?ref=${encodeURIComponent(branch)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/vnd.github+json',
+            },
+          }
+        );
+
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error(`GitHub lookup failed (${res.status})`);
+
+        const data = await res.json();
+        return data.sha;
+      }
+
+      async function publishToGitHub(editor, tokenInput, statusEl, repoInfo) {
+        const token = tokenInput.value.trim() || localStorage.getItem(STORAGE_KEY) || '';
+        const { owner, repo, branch } = repoInfo;
+
+        if (!owner || !repo) {
+          statusEl.textContent = 'Open this from your GitHub Pages URL first.';
+          return;
+        }
+
+        if (!token) {
+          statusEl.textContent = 'Paste your token and click Save Token first.';
+          return;
+        }
+
+        try {
+          statusEl.textContent = `Publishing to ${owner}/${repo}...`;
+
+          const sha = await getExistingFileSha(owner, repo, branch, token);
+          const payload = {
+            message: 'Publish site from GrapesJS builder',
+            content: utf8ToBase64(getExportHtml(editor)),
+            branch,
+          };
+
+          if (sha) payload.sha = sha;
+
+          const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/index.html`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/vnd.github+json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!putRes.ok) {
+            const errText = await putRes.text();
+            throw new Error(`Publish failed (${putRes.status}): ${errText}`);
+          }
+
+          statusEl.textContent = 'Published. GitHub Pages refreshes in about 1-2 minutes.';
+        } catch (err) {
+          statusEl.textContent = `Error: ${err.message}`;
+        }
+      }
+
+      const statusEl = document.getElementById('status');
+      const tokenInput = document.getElementById('github-token');
+      const repoInfo = detectRepoFromUrl();
+
+      const savedToken = localStorage.getItem(STORAGE_KEY);
+      if (savedToken) tokenInput.value = savedToken;
+
+      if (!repoInfo.owner || !repoInfo.repo) {
+        statusEl.textContent = 'Warning: open this via your GitHub Pages URL for one-click publish.';
+      }
+
+      const editor = grapesjs.init({
+        container: '#gjs',
+        fromElement: false,
+        height: '100%',
+        width: 'auto',
+        storageManager: false,
+        plugins: [
+          'gjs-preset-webpage',
+          'gjs-blocks-basic',
+          'gjs-plugin-forms',
+          'gjs-navbar',
+          'gjs-tabs',
+          'gjs-custom-code',
+          'gjs-tooltip',
+          'gjs-component-countdown',
+        ],
+        pluginsOpts: {
+          'gjs-preset-webpage': {
+            blocksBasicOpts: { flexGrid: true, blocks: ['column1', 'column2', 'column3', 'text', 'link', 'image', 'video'] },
+            navbarOpts: true,
+            formsOpts: true,
+            countdownOpts: true,
+          },
+          'gjs-blocks-basic': { flexGrid: true },
+          'gjs-plugin-forms': {},
+          'gjs-navbar': {},
+          'gjs-tabs': {},
+          'gjs-custom-code': {},
+          'gjs-tooltip': {},
+          'gjs-component-countdown': {},
+        },
+      });
+
+      editor.setComponents(`
+        <section style="padding: 48px 20px; text-align: center;">
+          <h1 style="margin: 0 0 12px;">Welcome to your GrapesJS Builder</h1>
+          <p style="margin: 0;">Use the right panel blocks, then click Publish Live when done.</p>
+        </section>
+      `);
+
+      document.getElementById('save-token').addEventListener('click', () => {
+        const token = tokenInput.value.trim();
+
+        if (!token) {
+          statusEl.textContent = 'Paste token first.';
+          return;
+        }
+
+        localStorage.setItem(STORAGE_KEY, token);
+        statusEl.textContent = 'Token saved. Next time just click Publish Live.';
+      });
+
+      document.getElementById('copy-html').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(getExportHtml(editor));
+          statusEl.textContent = 'HTML copied.';
+        } catch (e) {
+          statusEl.textContent = 'Clipboard blocked by this browser.';
+        }
+      });
+
+      document.getElementById('download-html').addEventListener('click', () => {
+        const blob = new Blob([getExportHtml(editor)], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        a.href = url;
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        statusEl.textContent = 'Downloaded index.html';
+      });
+
+      document.getElementById('publish-github').addEventListener('click', () => {
+        publishToGitHub(editor, tokenInput, statusEl, repoInfo);
+      });
+    </script>
+  </body>
+</html>
