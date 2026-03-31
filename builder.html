@@ -16,13 +16,7 @@
     />
 
     <style>
-      :root {
-        --publish-bar-height: 56px;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       html,
       body {
@@ -31,103 +25,171 @@
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       }
 
-      .publish-bar {
-        height: var(--publish-bar-height);
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #f3f4f6;
+      }
+
+      .builder-topbar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.3rem 0.5rem;
+        border-bottom: 1px solid #d1d5db;
+        background: #f8fafc;
+        position: relative;
+        z-index: 20;
+      }
+
+      .topbar-left,
+      .topbar-right {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        border-bottom: 1px solid #d1d5db;
-        background: #f8fafc;
-        flex-wrap: wrap;
       }
 
-      .publish-bar button,
-      .publish-bar input {
-        border: 1px solid #9ca3af;
-        border-radius: 6px;
-        background: #fff;
-        padding: 0.4rem 0.65rem;
-        font-size: 0.9rem;
-      }
-
-      .publish-bar input {
-        width: 290px;
-      }
-
-      .publish-bar button {
-        cursor: pointer;
-      }
-
-      .publish-bar .status {
-        font-size: 0.88rem;
-        color: #374151;
-      }
-
-      .publish-help {
-        width: 100%;
-        font-size: 0.8rem;
+      .status {
+        font-size: 0.82rem;
         color: #4b5563;
       }
 
-      .publish-help code {
-        border: 1px solid #c7d2fe;
-        background: #eef2ff;
-        border-radius: 4px;
-        padding: 0.1rem 0.35rem;
-      }
-
-      .publish-dock {
-        position: fixed;
-        top: 12px;
-        right: 12px;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        padding: 8px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
-      }
-
-      .publish-dock input,
-      .publish-dock button {
+      button,
+      input,
+      select {
         border: 1px solid #9ca3af;
         border-radius: 6px;
         background: #fff;
-        padding: 0.35rem 0.55rem;
+        padding: 0.3rem 0.55rem;
         font-size: 0.85rem;
       }
 
-      .publish-dock input {
-        width: 240px;
+      button { cursor: pointer; }
+
+      .menu-wrap { position: relative; }
+
+      .menu-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        width: min(420px, 90vw);
+        max-height: min(70vh, 620px);
+        overflow: auto;
+        padding: 0.75rem;
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+        display: none;
+      }
+
+      .menu-dropdown.open { display: block; }
+
+      .menu-section { margin-bottom: 0.85rem; }
+      .menu-section:last-child { margin-bottom: 0; }
+      .menu-section h4 {
+        margin: 0 0 0.45rem;
+        font-size: 0.76rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #6b7280;
+      }
+
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem;
+      }
+
+      .menu-grid button,
+      .menu-grid select,
+      .menu-grid input { width: 100%; }
+
+      .menu-note {
+        margin-top: 0.4rem;
+        color: #6b7280;
+        font-size: 0.78rem;
       }
 
       #gjs {
-        height: calc(100vh - var(--publish-bar-height));
+        flex: 1 1 auto;
+        min-height: 0;
         width: 100%;
         overflow: hidden;
+      }
+
+      .page-toolbar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.45rem;
+        background: #343a40;
+        border-bottom: 1px solid #1f2937;
+      }
+
+      .page-toolbar label {
+        color: #e5e7eb;
+        font-size: 0.8rem;
+      }
+
+      .page-toolbar select,
+      .page-toolbar button {
+        background: #1f2937;
+        border-color: #4b5563;
+        color: #f9fafb;
+      }
+
+      .gjs-pn-panels,
+      .gjs-pn-views,
+      .gjs-pn-devices-c,
+      .gjs-pn-commands {
+        z-index: 5;
       }
     </style>
   </head>
   <body>
-    <div class="publish-dock">
-      <input id="github-token" type="password" placeholder="Paste token here" />
-      <button id="save-token" type="button">Save Token</button>
-      <button id="publish-github" type="button">Publish Live</button>
-      <button id="hide-dock" type="button">Hide</button>
-    </div>
+    <header class="builder-topbar">
+      <div class="topbar-left">
+        <div class="menu-wrap">
+          <button id="menu-toggle" type="button">☰ Menu</button>
+          <div id="menu-dropdown" class="menu-dropdown" role="menu" aria-label="Builder menu">
+            <div class="menu-section">
+              <h4>File</h4>
+              <div class="menu-grid">
+                <button id="download-html" type="button">Download Current Page</button>
+                <button id="download-site" type="button">Export All Pages</button>
+                <button id="copy-html" type="button">Copy Current HTML</button>
+              </div>
+            </div>
 
-    <div class="publish-bar">
-      <button id="download-html" type="button">Download index.html</button>
-      <button id="copy-html" type="button">Copy HTML</button>
-      <span class="status" id="status">Ready</span>
-      <small class="publish-help"
-        >Token goes in the floating box at top-right. Click <code>Save Token</code> one time, then use
-        <code>Publish Live</code>.</small
-      >
+            <div class="menu-section">
+              <h4>Publish Settings</h4>
+              <div class="menu-grid">
+                <input id="github-token" type="password" placeholder="GitHub token" />
+                <button id="save-token" type="button">Save Token</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <span class="status" id="status">Ready</span>
+        <button id="publish-github" type="button">Publish Live</button>
+      </div>
+    </header>
+
+    <div class="page-toolbar">
+      <label for="page-selector">Page</label>
+      <select id="page-selector" aria-label="Select page"></select>
+      <button id="add-page" type="button">Add</button>
+      <button id="rename-page" type="button">Rename</button>
+      <button id="delete-page" type="button">Delete</button>
     </div>
 
     <div id="gjs"></div>
@@ -148,7 +210,22 @@
     <script src="https://unpkg.com/grapesjs-typed"></script>
     <script>
       const STORAGE_KEY = 'grapes_publish_token';
+      const PROJECT_STORAGE_KEY = 'gjs-project-v3';
       const BRANCH = 'main';
+
+      const statusEl = document.getElementById('status');
+      const tokenInput = document.getElementById('github-token');
+      const pageSelector = document.getElementById('page-selector');
+      const menuDropdown = document.getElementById('menu-dropdown');
+
+      function slugify(value) {
+        return String(value || '')
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 64);
+      }
 
       function detectRepoFromUrl() {
         const host = window.location.hostname;
@@ -162,6 +239,30 @@
         }
 
         return { owner, repo, branch: BRANCH };
+      }
+
+      const repoInfo = detectRepoFromUrl();
+
+      function getPageFilename(page, index) {
+        if (!page) return 'index.html';
+        const name = page.get('name') || page.getId() || `page-${index + 1}`;
+        const slug = page.get('slug') || slugify(name);
+        return index === 0 ? 'index.html' : `${slug || `page-${index + 1}`}.html`;
+      }
+
+      function getPageFileMap(editor) {
+        return editor.Pages.getAll().map((page, index) => ({
+          id: page.getId(),
+          name: page.get('name') || page.getId(),
+          filename: getPageFilename(page, index),
+        }));
+      }
+
+      function resolveInternalHref(editor, pageId) {
+        const pages = editor.Pages.getAll();
+        const idx = pages.findIndex(pg => pg.getId() === pageId);
+        if (idx < 0) return '';
+        return getPageFilename(pages[idx], idx);
       }
 
       function getExportHtml(editor) {
@@ -188,9 +289,9 @@ ${html}
         return btoa(unescape(encodeURIComponent(str)));
       }
 
-      async function getExistingFileSha(owner, repo, branch, token) {
+      async function getExistingFileSha(owner, repo, branch, path, token) {
         const res = await fetch(
-          `https://api.github.com/repos/${owner}/${repo}/contents/index.html?ref=${encodeURIComponent(branch)}`,
+          `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -200,77 +301,184 @@ ${html}
         );
 
         if (res.status === 404) return null;
-        if (!res.ok) throw new Error(`GitHub lookup failed (${res.status})`);
+        if (!res.ok) throw new Error(`GitHub lookup failed (${res.status}) for ${path}`);
 
         const data = await res.json();
         return data.sha;
       }
 
-      async function publishToGitHub(editor, tokenInput, statusEl, repoInfo) {
-        const token = tokenInput.value.trim() || localStorage.getItem(STORAGE_KEY) || '';
-        const { owner, repo, branch } = repoInfo;
+      async function uploadFileToGitHub(owner, repo, branch, path, content, token) {
+        let sha = await getExistingFileSha(owner, repo, branch, path, token);
 
-        if (!owner || !repo) {
-          statusEl.textContent = 'Open this from your GitHub Pages URL first.';
-          return;
-        }
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          const payload = {
+            message: `Publish ${path} from GrapesJS builder`,
+            content: utf8ToBase64(content),
+            branch,
+          };
 
-        if (!token) {
-          statusEl.textContent = 'Paste your token and click Save Token first.';
-          return;
-        }
+          if (sha) payload.sha = sha;
 
-        try {
-          statusEl.textContent = `Publishing to ${owner}/${repo}...`;
+          const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/vnd.github+json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
 
-          let sha = await getExistingFileSha(owner, repo, branch, token);
-          let putRes = null;
-
-          for (let attempt = 0; attempt < 2; attempt += 1) {
-            const payload = {
-              message: 'Publish site from GrapesJS builder',
-              content: utf8ToBase64(getExportHtml(editor)),
-              branch,
-            };
-            if (sha) payload.sha = sha;
-
-            putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/index.html`, {
-              method: 'PUT',
-              headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'application/vnd.github+json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(payload),
-            });
-
-            if (putRes.ok) break;
-
-            if (putRes.status === 409 && attempt === 0) {
-              statusEl.textContent = 'File changed on GitHub. Retrying...';
-              sha = await getExistingFileSha(owner, repo, branch, token);
-              continue;
-            }
-
-            const errText = await putRes.text();
-            throw new Error(`Publish failed (${putRes.status}): ${errText}`);
+          if (res.ok) return;
+          if (res.status === 409 && attempt === 0) {
+            sha = await getExistingFileSha(owner, repo, branch, path, token);
+            continue;
           }
 
-          statusEl.textContent = 'Published. GitHub Pages refreshes in about 1-2 minutes.';
-        } catch (err) {
-          statusEl.textContent = `Error: ${err.message}`;
+          const errorText = await res.text();
+          throw new Error(`Publish failed (${res.status}) for ${path}: ${errorText}`);
         }
       }
 
-      const statusEl = document.getElementById('status');
-      const tokenInput = document.getElementById('github-token');
-      const repoInfo = detectRepoFromUrl();
+      function collectPagesForExport(editor) {
+        const activePage = editor.Pages.getSelected();
+        const output = editor.Pages.getAll().map((page, index) => {
+          editor.Pages.select(page);
+          return {
+            id: page.getId(),
+            name: page.get('name') || `Page ${index + 1}`,
+            filename: getPageFilename(page, index),
+            html: getExportHtml(editor),
+          };
+        });
 
-      const savedToken = localStorage.getItem(STORAGE_KEY);
-      if (savedToken) tokenInput.value = savedToken;
+        if (activePage) editor.Pages.select(activePage);
+        return output;
+      }
 
-      if (!repoInfo.owner || !repoInfo.repo) {
-        statusEl.textContent = 'Warning: open this via your GitHub Pages URL for one-click publish.';
+      function withInternalLinkTraits(defaults) {
+        const baseTraits = defaults.traits || [];
+        const traitNames = baseTraits.map(tr => (typeof tr === 'string' ? tr : tr.name));
+        if (traitNames.includes('linkType')) return baseTraits;
+
+        return [
+          ...baseTraits,
+          {
+            type: 'select',
+            name: 'linkType',
+            label: 'Link Type',
+            options: [
+              { id: 'external', label: 'External URL' },
+              { id: 'internal', label: 'Internal Page' },
+            ],
+            changeProp: 1,
+          },
+          { type: 'text', name: 'href', label: 'External URL', placeholder: 'https://example.com' },
+          {
+            type: 'select',
+            name: 'internalPage',
+            label: 'Internal Page',
+            options: [{ id: '', label: 'Select page' }],
+            changeProp: 1,
+          },
+        ];
+      }
+
+      function ensureLinkBehavior(editor) {
+        const domc = editor.DomComponents;
+        const defaultType = domc.getType('default');
+
+        ['link'].forEach(typeName => {
+          const type = domc.getType(typeName);
+          if (!type) return;
+
+          domc.addType(typeName, {
+            model: type.model.extend(
+              {
+                defaults: {
+                  ...type.model.prototype.defaults,
+                  traits: withInternalLinkTraits(type.model.prototype.defaults),
+                  linkType: 'external',
+                  internalPage: '',
+                },
+
+                init() {
+                  this.listenTo(this, 'change:linkType change:attributes:href change:internalPage', () => {
+                    const linkType = this.get('linkType') || 'external';
+                    const attrs = { ...(this.getAttributes() || {}) };
+                    if (linkType === 'internal') {
+                      const pageId = this.get('internalPage');
+                      const targetHref = resolveInternalHref(editor, pageId);
+                      attrs.href = targetHref || attrs.href || '#';
+                      if (this.get('tagName') === 'button') {
+                        attrs.onclick = attrs.href ? `window.location.href='${attrs.href}'` : '';
+                      }
+                    } else if (this.get('tagName') === 'button') {
+                      const href = attrs.href || '#';
+                      attrs.onclick = `window.location.href='${href}'`;
+                    }
+                    this.setAttributes(attrs);
+                  });
+                },
+              },
+              {
+                isComponent: type.model.isComponent || defaultType.model.isComponent,
+              }
+            ),
+            view: type.view,
+          });
+        });
+      }
+
+      function refreshPageSelector(editor) {
+        const pages = editor.Pages.getAll();
+        const selected = editor.Pages.getSelected();
+        pageSelector.innerHTML = '';
+
+        pages.forEach((page, index) => {
+          const option = document.createElement('option');
+          option.value = page.getId();
+          option.textContent = `${index + 1}. ${page.get('name') || page.getId()}`;
+          if (selected && selected.getId() === page.getId()) option.selected = true;
+          pageSelector.appendChild(option);
+        });
+      }
+
+      function refreshInternalPageTraitOptions(editor) {
+        const pageOptions = getPageFileMap(editor).map(page => ({
+          id: page.id,
+          label: `${page.name} (${page.filename})`,
+        }));
+
+        const wrapper = editor.getWrapper();
+        if (!wrapper) return;
+        const components = [...wrapper.find('a'), ...wrapper.find('button')];
+
+        components.forEach(component => {
+          const traits = component.get('traits') || [];
+          traits.forEach(trait => {
+            if (typeof trait !== 'string' && trait.name === 'internalPage') {
+              trait.options = [{ id: '', label: 'Select page' }, ...pageOptions];
+            }
+          });
+          component.set('traits', [...traits]);
+        });
+      }
+
+      function createNewPage(editor) {
+        const name = window.prompt('New page name (eg: About):', 'New Page');
+        if (!name) return;
+
+        const slugInput = window.prompt('Slug (eg: about). Leave blank to auto-generate:', slugify(name));
+        const slug = slugify(slugInput || name);
+        const id = `page-${Date.now()}`;
+
+        const page = editor.Pages.add({ id, name: name.trim(), slug });
+        editor.Pages.select(page);
+        editor.setComponents(`<section style="padding:40px 20px;"><h1>${name}</h1><p>Start building this page.</p></section>`);
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = `Created page "${name}".`;
       }
 
       const editor = grapesjs.init({
@@ -278,7 +486,20 @@ ${html}
         fromElement: false,
         height: '100%',
         width: 'auto',
-        storageManager: false,
+        storageManager: {
+          type: 'local',
+          autosave: true,
+          autoload: true,
+          stepsBeforeSave: 1,
+          options: {
+            local: {
+              key: PROJECT_STORAGE_KEY,
+            },
+          },
+        },
+        pageManager: {
+          pages: [{ id: 'home', name: 'Home', slug: 'home' }],
+        },
         plugins: [
           'gjs-preset-webpage',
           'gjs-blocks-basic',
@@ -316,12 +537,42 @@ ${html}
         },
       });
 
-      editor.setComponents(`
-        <section style="padding: 48px 20px; text-align: center;">
-          <h1 style="margin: 0 0 12px;">Welcome to your GrapesJS Builder</h1>
-          <p style="margin: 0;">Use blocks, styles, traits, layers, and plugins like in the GrapesJS demo.</p>
-        </section>
-      `);
+      ensureLinkBehavior(editor);
+
+      if (!repoInfo.owner || !repoInfo.repo) {
+        statusEl.textContent = 'Open this via your GitHub Pages URL for one-click publish.';
+      }
+
+      const savedToken = localStorage.getItem(STORAGE_KEY);
+      if (savedToken) tokenInput.value = savedToken;
+
+      function ensureDefaultHomeContent() {
+        const home = editor.Pages.getAll().at(0);
+        if (!home) return;
+
+        editor.Pages.select(home);
+        const wrapper = editor.getWrapper();
+        if (!wrapper || wrapper.components().length) return;
+
+        editor.setComponents(`
+          <section style="padding: 48px 20px; text-align: center;">
+            <h1 style="margin: 0 0 12px;">Welcome to your GrapesJS Builder</h1>
+            <p style="margin: 0;">Build multiple pages and link them with internal page links.</p>
+          </section>
+        `);
+      }
+
+      ensureDefaultHomeContent();
+
+      // Ensure manager commands are easy to access
+      const pn = editor.Panels;
+      if (!pn.getButton('options', 'open-blocks')) pn.addButton('options', { id: 'open-blocks', className: 'fa fa-th-large', command: 'open-blocks' });
+      if (!pn.getButton('options', 'open-layers')) pn.addButton('options', { id: 'open-layers', className: 'fa fa-bars', command: 'open-layers' });
+      if (!pn.getButton('options', 'open-sm')) pn.addButton('options', { id: 'open-sm', className: 'fa fa-paint-brush', command: 'open-sm' });
+      if (!pn.getButton('options', 'open-tm')) pn.addButton('options', { id: 'open-tm', className: 'fa fa-cog', command: 'open-tm' });
+      if (!pn.getButton('options', 'open-assets')) pn.addButton('options', { id: 'open-assets', className: 'fa fa-folder-open', command: 'open-assets' });
+
+      editor.Commands.run('open-blocks');
 
       const bm = editor.BlockManager;
       const blockCategory = 'Extra Components';
@@ -331,7 +582,7 @@ ${html}
         content: '<section style="padding:40px 20px;"><h2>Section title</h2><p>Add content here.</p></section>',
       });
       bm.add('extra-button', {
-        label: 'Button',
+        label: 'Button Link',
         category: blockCategory,
         content: '<a href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Button</a>',
       });
@@ -376,9 +627,76 @@ ${html}
         content: '<div data-gjs-type="countdown" data-end-time="2027-01-01T00:00:00"></div>',
       });
 
+      refreshPageSelector(editor);
+      refreshInternalPageTraitOptions(editor);
+
+      editor.on('page', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('page:select', () => {
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+      });
+      editor.on('storage:store', () => {
+        statusEl.textContent = 'Saved locally.';
+      });
+
+      document.getElementById('menu-toggle').addEventListener('click', e => {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('open');
+      });
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
+      });
+
+      pageSelector.addEventListener('change', e => {
+        const target = editor.Pages.get(e.target.value);
+        if (target) editor.Pages.select(target);
+      });
+
+      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
+
+      document.getElementById('rename-page').addEventListener('click', () => {
+        const page = editor.Pages.getSelected();
+        if (!page) return;
+
+        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
+        if (!nextName) return;
+
+        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
+        page.set('name', nextName.trim());
+        page.set('slug', slugify(nextSlugInput || nextName));
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = `Renamed page to "${nextName}".`;
+      });
+
+      document.getElementById('delete-page').addEventListener('click', () => {
+        const pages = editor.Pages.getAll();
+        if (pages.length <= 1) {
+          statusEl.textContent = 'At least one page is required.';
+          return;
+        }
+
+        const selected = editor.Pages.getSelected();
+        if (!selected) return;
+
+        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
+        if (!ok) return;
+
+        editor.Pages.remove(selected);
+        const first = editor.Pages.getAll().at(0);
+        if (first) editor.Pages.select(first);
+
+        refreshPageSelector(editor);
+        refreshInternalPageTraitOptions(editor);
+        statusEl.textContent = 'Page deleted.';
+      });
+
       document.getElementById('save-token').addEventListener('click', () => {
         const token = tokenInput.value.trim();
-
         if (!token) {
           statusEl.textContent = 'Paste token first.';
           return;
@@ -386,40 +704,84 @@ ${html}
 
         localStorage.setItem(STORAGE_KEY, token);
         tokenInput.value = '';
-        statusEl.textContent = 'Token saved. Next time just click Publish Live.';
-      });
-
-      document.getElementById('hide-dock').addEventListener('click', () => {
-        document.querySelector('.publish-dock').style.display = 'none';
+        statusEl.textContent = 'Token saved.';
       });
 
       document.getElementById('copy-html').addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(getExportHtml(editor));
-          statusEl.textContent = 'HTML copied.';
-        } catch (e) {
+          statusEl.textContent = 'Current page HTML copied.';
+        } catch {
           statusEl.textContent = 'Clipboard blocked by this browser.';
         }
       });
 
       document.getElementById('download-html').addEventListener('click', () => {
+        const selected = editor.Pages.getSelected();
+        const pages = editor.Pages.getAll();
+        const filename = getPageFilename(selected, Math.max(0, pages.indexOf(selected)));
+
         const blob = new Blob([getExportHtml(editor)], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
 
         a.href = url;
-        a.download = 'index.html';
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        statusEl.textContent = 'Downloaded index.html';
+        statusEl.textContent = `Downloaded ${filename}`;
       });
 
-      document.getElementById('publish-github').addEventListener('click', () => {
-        publishToGitHub(editor, tokenInput, statusEl, repoInfo);
+      document.getElementById('download-site').addEventListener('click', () => {
+        const pages = collectPagesForExport(editor);
+
+        pages.forEach(page => {
+          const blob = new Blob([page.html], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+
+          a.href = url;
+          a.download = page.filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+
+        statusEl.textContent = `Exported ${pages.length} page(s).`;
       });
+
+      async function publishToGitHub() {
+        const token = tokenInput.value.trim() || localStorage.getItem(STORAGE_KEY) || '';
+        const { owner, repo, branch } = repoInfo;
+
+        if (!owner || !repo) {
+          statusEl.textContent = 'Open this from your GitHub Pages URL first.';
+          return;
+        }
+        if (!token) {
+          statusEl.textContent = 'Save your token from Menu > Publish Settings first.';
+          return;
+        }
+
+        try {
+          const pages = collectPagesForExport(editor);
+          statusEl.textContent = `Publishing ${pages.length} page(s)...`;
+
+          for (const page of pages) {
+            await uploadFileToGitHub(owner, repo, branch, page.filename, page.html, token);
+          }
+
+          statusEl.textContent = `Published ${pages.length} page(s).`;
+        } catch (err) {
+          statusEl.textContent = `Error: ${err.message}`;
+        }
+      }
+
+      document.getElementById('publish-github').addEventListener('click', publishToGitHub);
     </script>
   </body>
 </html>
