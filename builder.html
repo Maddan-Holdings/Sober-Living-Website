@@ -135,6 +135,13 @@
           </div>
 
           <div class="menu-section">
+            <div class="menu-section-title">Sync</div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-sync-github"><i class="fa-solid fa-cloud-arrow-down"></i> Load from GitHub</button>
+            </div>
+          </div>
+
+          <div class="menu-section">
             <div class="menu-section-title">Settings</div>
             <div class="menu-row">
               <input type="password" id="github-token" class="menu-input" placeholder="GitHub Personal Access Token">
@@ -173,6 +180,12 @@
       <div class="tab-content" id="tab-layers" style="display:none"><div id="layers"></div></div>
     </div>
   </div>
+
+  <div id="loading-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;justify-content:center;align-items:center;flex-direction:column;gap:16px">
+    <div style="width:36px;height:36px;border:3px solid #555;border-top-color:#4f46e5;border-radius:50%;animation:spin .8s linear infinite"></div>
+    <div id="loading-text" style="color:#ccc;font-size:14px">Loading project from GitHub...</div>
+  </div>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
   <div id="publish-modal" class="modal-overlay">
     <div class="modal-box">
@@ -238,13 +251,25 @@
   // =============================================
   var TOKEN_KEY = 'gjs-builder-token';
   var PROJECT_KEY = 'gjs-project-v4';
+  var DATA_FILE = 'builder-data.json';
   var BRANCH = 'main';
   var statusEl = document.getElementById('status');
+  var loadingOverlay = document.getElementById('loading-overlay');
+  var loadingText = document.getElementById('loading-text');
 
   // =============================================
   // UTILITIES
   // =============================================
   function setStatus(msg) { statusEl.textContent = msg; }
+
+  function showLoading(msg) {
+    loadingText.textContent = msg || 'Loading...';
+    loadingOverlay.style.display = 'flex';
+  }
+
+  function hideLoading() {
+    loadingOverlay.style.display = 'none';
+  }
 
   function slugify(str) {
     return String(str || '').toLowerCase().trim()
@@ -691,6 +716,10 @@
     });
   }
 
+  function getProjectData() {
+    return editor.getProjectData();
+  }
+
   function publishToGitHub() {
     var token = localStorage.getItem(TOKEN_KEY) || '';
     var owner = repoInfo.owner, repo = repoInfo.repo, branch = repoInfo.branch;
@@ -703,11 +732,70 @@
       chain = chain.then(function () { return uploadFile(owner, repo, branch, page.filename, page.html, token); });
     });
     chain = chain.then(function () { return uploadFile(owner, repo, branch, '.nojekyll', '', token); });
+    chain = chain.then(function () {
+      setStatus('Saving project data\u2026');
+      var projectJson = JSON.stringify(getProjectData(), null, 2);
+      return uploadFile(owner, repo, branch, DATA_FILE, projectJson, token);
+    });
     return chain.then(function () {
-      setStatus('\u2713 Published ' + pages.length + ' page(s) successfully!');
+      setStatus('\u2713 Published ' + pages.length + ' page(s) + project data saved!');
     }).catch(function (err) {
       setStatus('Error: ' + err.message);
       console.error(err);
+    });
+  }
+
+  // =============================================
+  // SYNC: LOAD FROM GITHUB
+  // =============================================
+  function fetchProjectFromGitHub(showUI) {
+    var owner = repoInfo.owner;
+    var repo = repoInfo.repo;
+
+    if (!owner || !repo) {
+      if (showUI) setStatus('Cannot sync: open builder from your GitHub Pages URL.');
+      return Promise.resolve(null);
+    }
+
+    var dataUrl = 'https://' + owner + '.github.io/' + repo + '/' + DATA_FILE + '?t=' + Date.now();
+
+    if (showUI) showLoading('Loading project from GitHub\u2026');
+
+    return fetch(dataUrl).then(function (res) {
+      if (!res.ok) {
+        if (showUI) hideLoading();
+        return null;
+      }
+      return res.json();
+    }).catch(function () {
+      if (showUI) hideLoading();
+      return null;
+    });
+  }
+
+  function loadProjectData(data) {
+    if (!data) return;
+    try {
+      editor.loadProjectData(data);
+      refreshPages();
+      setStatus('\u2713 Project loaded from GitHub.');
+    } catch (err) {
+      console.error('Failed to load project data:', err);
+      setStatus('Error loading project: ' + err.message);
+    }
+  }
+
+  function syncFromGitHub(showUI) {
+    return fetchProjectFromGitHub(showUI).then(function (data) {
+      if (showUI) hideLoading();
+      if (data) {
+        loadProjectData(data);
+        editor.store();
+        return true;
+      } else if (showUI) {
+        setStatus('No saved project found on GitHub. Build and publish first.');
+      }
+      return false;
     });
   }
 
@@ -754,7 +842,58 @@
       '</section>'
     );
   }
-  ensureDefaultContent();
+
+  // =============================================
+  // AUTO-LOAD FROM GITHUB ON STARTUP
+  // =============================================
+  function hasLocalProject() {
+    try {
+      var data = localStorage.getItem(PROJECT_KEY);
+      if (!data) return false;
+      var parsed = JSON.parse(data);
+      if (parsed && parsed.pages && parsed.pages.length > 0) {
+        var firstPage = parsed.pages[0];
+        if (firstPage.frames && firstPage.frames.length > 0) {
+          var frame = firstPage.frames[0];
+          var comp = frame.component;
+          if (comp && comp.components && comp.components.length > 0) return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function initEditor() {
+    if (hasLocalProject()) {
+      refreshPages();
+      setStatus('Loaded from local save.');
+      return;
+    }
+
+    if (repoInfo.owner && repoInfo.repo) {
+      showLoading('Loading your project from GitHub\u2026');
+      fetchProjectFromGitHub(false).then(function (data) {
+        hideLoading();
+        if (data) {
+          loadProjectData(data);
+          editor.store();
+          setStatus('\u2713 Project restored from GitHub.');
+        } else {
+          ensureDefaultContent();
+          refreshPages();
+          setStatus('No published project found. Start building!');
+        }
+      });
+    } else {
+      ensureDefaultContent();
+      refreshPages();
+      setStatus('Ready');
+    }
+  }
+
+  initEditor();
 
   // =============================================
   // UI: MENU TOGGLE
@@ -899,6 +1038,16 @@
     }
   });
 
+  document.getElementById('btn-sync-github').addEventListener('click', function () {
+    menuDropdown.classList.remove('open');
+    if (!repoInfo.owner || !repoInfo.repo) {
+      setStatus('Cannot sync: open builder from your GitHub Pages URL.');
+      return;
+    }
+    if (!confirm('Load project from GitHub? This will replace your current work.')) return;
+    syncFromGitHub(true);
+  });
+
   // =============================================
   // UI: PUBLISH MODAL
   // =============================================
@@ -944,25 +1093,8 @@
   editor.on('page', refreshPages);
   editor.on('page:select', refreshPages);
   editor.on('storage:store', function () { setStatus('Saved'); });
-  editor.on('load', function () {
-    refreshPages();
-    try { editor.runCommand('sw-visibility'); } catch (e) {}
-  });
 
-  // Switch to Settings tab when component is double-clicked for editing
-  editor.on('component:selected', function () {
-    var activeTab = document.querySelector('.tab-btn.active');
-    if (activeTab && activeTab.dataset.tab === 'tab-layers') {
-      // don't switch from layers
-    }
-  });
-
-  // =============================================
-  // INITIAL STATE
-  // =============================================
-  refreshPages();
   try { editor.runCommand('sw-visibility'); } catch (e) {}
-  setStatus('Ready');
 
 })();
   </script>
