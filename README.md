@@ -5,16 +5,11 @@ Use `/builder.html` to design the site visually (full GrapesJS UI with blocks/la
 ## First-time setup (one time only)
 1. Create a GitHub fine-grained token with **Contents: Read and write** for this repo.
 2. Open your live builder URL: `https://<your-username>.github.io/<repo-name>/builder.html`
-3. In the top publish bar, paste token into **"Paste GitHub token here (once)"** and click **Save Token**.
+3. Open **Menu → Settings**, paste the token, and click **Save token**.
 
 ## Every time after that
 1. Open `/builder.html`
-2. Edit your page visually
-3. Click **Publish Live**
+2. Edit your site visually (multiple pages, blocks, styles, traits)
+3. Click **Publish** (or use **Menu → Export** to download HTML or a ZIP)
 
-No file editing needed.
-
-## If GitHub says “conflicts are too complex”
-1. Close that PR.
-2. Open a new PR from the newest builder branch.
-3. Merge the new PR (it includes a compatibility `index.md` file to avoid the old `index.md` conflict).
+The site is **plain static HTML** on GitHub Pages (`.nojekyll` is included; there is no Jekyll build).
