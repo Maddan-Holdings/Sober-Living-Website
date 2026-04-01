@@ -1,900 +1,970 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GrapesJS Builder</title>
-
-    <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/grapesjs-preset-webpage/dist/grapesjs-preset-webpage.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/grapesjs-blocks-basic/dist/grapesjs-blocks-basic.min.css"
-    />
-
-    <style>
-      * { box-sizing: border-box; }
-
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-        background: #f3f4f6;
-      }
-
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        overflow: hidden;
-        background: #f3f4f6;
-      }
-
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        overflow: hidden;
-        background: #f3f4f6;
-      }
-
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        overflow: hidden;
-        background: #f3f4f6;
-      }
-
-      .builder-topbar {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        padding: 0.3rem 0.5rem;
-        border-bottom: 1px solid #d1d5db;
-        background: #f8fafc;
-        position: relative;
-        z-index: 20;
-      }
-
-      .topbar-left,
-      .topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .status {
-        font-size: 0.82rem;
-        color: #4b5563;
-      }
-
-      button,
-      input,
-      select {
-        border: 1px solid #9ca3af;
-        border-radius: 6px;
-        background: #fff;
-        padding: 0.3rem 0.55rem;
-        font-size: 0.85rem;
-      }
-
-      button { cursor: pointer; }
-
-      .menu-wrap { position: relative; }
-
-      .menu-dropdown {
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 0;
-        width: min(420px, 90vw);
-        max-height: min(70vh, 620px);
-        overflow: auto;
-        padding: 0.75rem;
-        background: #fff;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
-        display: none;
-      }
-
-      .menu-dropdown.open { display: block; }
-
-      .menu-section { margin-bottom: 0.85rem; }
-      .menu-section:last-child { margin-bottom: 0; }
-      .menu-section h4 {
-        margin: 0 0 0.45rem;
-        font-size: 0.76rem;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        color: #6b7280;
-      }
-
-      .menu-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.4rem;
-      }
-
-      .menu-grid button,
-      .menu-grid select,
-      .menu-grid input { width: 100%; }
-
-      .menu-note {
-        margin-top: 0.4rem;
-        color: #6b7280;
-        font-size: 0.78rem;
-      }
-
-      #gjs {
-        flex: 1 1 auto;
-        min-height: 0;
-        width: 100%;
-        overflow: hidden;
-      }
-
-      .page-toolbar {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.3rem 0.45rem;
-        background: #343a40;
-        border-bottom: 1px solid #1f2937;
-      }
-
-      .page-toolbar label {
-        color: #e5e7eb;
-        font-size: 0.8rem;
-      }
-
-      .page-toolbar select,
-      .page-toolbar button {
-        background: #1f2937;
-        border-color: #4b5563;
-        color: #f9fafb;
-      }
-
-      .gjs-pn-panels,
-      .gjs-pn-views,
-      .gjs-pn-devices-c,
-      .gjs-pn-commands {
-        z-index: 5;
-      }
-    </style>
-  </head>
-  <body>
-    <header class="builder-topbar">
-      <div class="topbar-left">
-        <div class="menu-wrap">
-          <button id="menu-toggle" type="button">☰ Menu</button>
-          <div id="menu-dropdown" class="menu-dropdown" role="menu" aria-label="Builder menu">
-            <div class="menu-section">
-              <h4>File</h4>
-              <div class="menu-grid">
-                <button id="download-html" type="button">Download Current Page</button>
-                <button id="download-site" type="button">Export All Pages</button>
-                <button id="copy-html" type="button">Copy Current HTML</button>
-              </div>
-            </div>
-
-            <div class="menu-section">
-              <h4>Publish Settings</h4>
-              <div class="menu-grid">
-                <input id="github-token" type="password" placeholder="GitHub token" />
-                <button id="save-token" type="button">Save Token</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="topbar-right">
-        <span class="status" id="status">Ready</span>
-        <button id="publish-github" type="button">Publish Live</button>
-      </div>
-    </header>
-
-    <div class="page-toolbar">
-      <label for="page-selector">Page</label>
-      <select id="page-selector" aria-label="Select page"></select>
-      <button id="add-page" type="button">Add</button>
-      <button id="rename-page" type="button">Rename</button>
-      <button id="delete-page" type="button">Delete</button>
-    </div>
-
-    <div id="gjs"></div>
-
-    <script src="https://unpkg.com/grapesjs"></script>
-    <script src="https://unpkg.com/grapesjs-preset-webpage"></script>
-    <script src="https://unpkg.com/grapesjs-blocks-basic"></script>
-    <script src="https://unpkg.com/grapesjs-plugin-forms"></script>
-    <script src="https://unpkg.com/grapesjs-navbar"></script>
-    <script src="https://unpkg.com/grapesjs-tabs"></script>
-    <script src="https://unpkg.com/grapesjs-custom-code"></script>
-    <script src="https://unpkg.com/grapesjs-tooltip"></script>
-    <script src="https://unpkg.com/grapesjs-component-countdown"></script>
-    <script src="https://unpkg.com/grapesjs-plugin-export"></script>
-    <script src="https://unpkg.com/grapesjs-parser-postcss"></script>
-    <script src="https://unpkg.com/grapesjs-touch"></script>
-    <script src="https://unpkg.com/grapesjs-style-bg"></script>
-    <script src="https://unpkg.com/grapesjs-typed"></script>
-    <script>
-      const STORAGE_KEY = 'grapes_publish_token';
-      const PROJECT_STORAGE_KEY = 'gjs-project-v3';
-      const BRANCH = 'main';
-
-      const statusEl = document.getElementById('status');
-      const tokenInput = document.getElementById('github-token');
-      const pageSelector = document.getElementById('page-selector');
-      const menuDropdown = document.getElementById('menu-dropdown');
-
-      function slugify(value) {
-        return String(value || '')
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-+|-+$/g, '')
-          .slice(0, 64);
-      }
-
-      function detectRepoFromUrl() {
-        const host = window.location.hostname;
-        const pathParts = window.location.pathname.split('/').filter(Boolean);
-        let owner = '';
-        let repo = '';
-
-        if (host.endsWith('github.io')) {
-          owner = host.replace('.github.io', '');
-          repo = pathParts[0] || `${owner}.github.io`;
-        }
-
-        return { owner, repo, branch: BRANCH };
-      }
-
-      const repoInfo = detectRepoFromUrl();
-
-      function getPageFilename(page, index) {
-        if (!page) return 'index.html';
-        const name = page.get('name') || page.getId() || `page-${index + 1}`;
-        const slug = page.get('slug') || slugify(name);
-        return index === 0 ? 'index.html' : `${slug || `page-${index + 1}`}.html`;
-      }
-
-      function getPageFileMap(editor) {
-        return editor.Pages.getAll().map((page, index) => ({
-          id: page.getId(),
-          name: page.get('name') || page.getId(),
-          filename: getPageFilename(page, index),
-        }));
-      }
-
-      function resolveInternalHref(editor, pageId) {
-        const pages = editor.Pages.getAll();
-        const idx = pages.findIndex(pg => pg.getId() === pageId);
-        if (idx < 0) return '';
-        return getPageFilename(pages[idx], idx);
-      }
-
-      function getExportHtml(editor) {
-        const html = editor.getHtml();
-        const css = editor.getCss();
-
-        return `<!doctype html>
-<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site</title>
+  <title>Website Builder</title>
+  <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-${css}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#353535}
+
+    .topbar{display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 14px;background:#1e1e1e;border-bottom:1px solid #111;z-index:100;flex-shrink:0}
+    .topbar-left,.topbar-right{display:flex;align-items:center;gap:10px}
+    .menu-wrap{position:relative}
+    #menu-btn{background:#2d2d2d;color:#bbb;border:1px solid #444;padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px}
+    #menu-btn:hover{background:#3a3a3a;color:#fff}
+    .btn-publish{background:#4f46e5;color:#fff;border:none;padding:7px 20px;border-radius:5px;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .btn-publish:hover{background:#4338ca}
+    .status-text{color:#777;font-size:12px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    .menu-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;width:400px;max-height:82vh;overflow-y:auto;background:#1e1e1e;border:1px solid #333;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:200;padding:8px}
+    .menu-dropdown.open{display:block}
+    .menu-section{margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #2a2a2a}
+    .menu-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+    .menu-section-title{color:#777;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;padding:0 4px;font-weight:600}
+    .menu-row{display:flex;gap:4px;margin-bottom:4px}
+    .menu-row:last-child{margin-bottom:0}
+    .menu-btn{flex:1;background:#2a2a2a;color:#bbb;border:1px solid #3a3a3a;padding:7px 8px;border-radius:5px;font-size:12px;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+    .menu-btn:hover{background:#3a3a3a;color:#fff}
+    .menu-btn.active{background:#4f46e5;color:#fff;border-color:#4f46e5}
+    .menu-select,.menu-input{flex:1;background:#2a2a2a;color:#ccc;border:1px solid #3a3a3a;padding:7px 8px;border-radius:5px;font-size:12px}
+    .menu-select:focus,.menu-input:focus{border-color:#4f46e5;outline:none}
+
+    .editor-wrap{display:flex;height:calc(100vh - 44px);overflow:hidden}
+    .panel-left{width:240px;min-width:240px;background:#2d2d2d;border-right:1px solid #1a1a1a;display:flex;flex-direction:column;overflow:hidden}
+    .panel-header{padding:10px 14px;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #1a1a1a;flex-shrink:0}
+    #blocks{flex:1;overflow-y:auto;padding:6px}
+    .panel-right{width:280px;min-width:280px;background:#2d2d2d;border-left:1px solid #1a1a1a;display:flex;flex-direction:column;overflow:hidden}
+    .panel-tabs{display:flex;border-bottom:1px solid #1a1a1a;background:#1e1e1e;flex-shrink:0}
+    .tab-btn{flex:1;background:transparent;color:#777;border:none;border-bottom:2px solid transparent;padding:9px 4px;font-size:12px;cursor:pointer;font-weight:500}
+    .tab-btn:hover{color:#ccc}
+    .tab-btn.active{color:#fff;border-bottom-color:#4f46e5}
+    .tab-content{flex:1;overflow-y:auto}
+    .editor-canvas{flex:1;overflow:hidden;position:relative}
+    #gjs{height:100%;width:100%}
+
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;justify-content:center;align-items:center}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:#1e1e1e;border:1px solid #333;border-radius:12px;padding:24px;width:500px;max-width:92vw;max-height:82vh;overflow-y:auto;color:#ccc}
+    .modal-title{font-size:17px;font-weight:700;margin-bottom:18px;color:#fff}
+    .modal-section{margin-bottom:18px}
+    .modal-section:last-child{margin-bottom:0}
+    .modal-section-title{font-size:13px;font-weight:600;color:#999;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .modal-input{width:100%;background:#2a2a2a;color:#ddd;border:1px solid #444;padding:9px 12px;border-radius:6px;font-size:13px;margin-bottom:8px}
+    .modal-textarea{width:100%;height:220px;background:#2a2a2a;color:#ddd;border:1px solid #444;padding:9px 12px;border-radius:6px;font-size:12px;font-family:'SF Mono',Monaco,Consolas,monospace;resize:vertical;margin-bottom:8px}
+    .modal-btn{background:#4f46e5;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+    .modal-btn:hover{background:#4338ca}
+    .modal-btn-secondary{background:#2a2a2a;color:#ccc;border:1px solid #444}
+    .modal-btn-secondary:hover{background:#3a3a3a}
+    .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+    .modal-close{background:transparent;color:#888;border:none;padding:9px 16px;border-radius:6px;font-size:13px;cursor:pointer}
+    .modal-close:hover{color:#fff}
+    .modal-note{font-size:12px;color:#666;margin-bottom:10px;line-height:1.5}
+
+    .gjs-pn-panels{display:none!important}
+    .gjs-cv-canvas{width:100%!important;height:100%!important;top:0!important;left:0!important}
+    .gjs-block{width:auto;min-height:auto;padding:10px 5px}
+    .gjs-blocks-cs{display:flex;flex-wrap:wrap;justify-content:flex-start}
+    .gjs-sm-sector .gjs-sm-sector-title{border-bottom-color:#2a2a2a}
+    .gjs-clm-tags{padding:6px 8px}
+    .gjs-clm-tag{background:#3a3a3a}
+    #selectors{border-bottom:1px solid #2a2a2a}
+
+    .panel-left::-webkit-scrollbar,.tab-content::-webkit-scrollbar,.menu-dropdown::-webkit-scrollbar,#blocks::-webkit-scrollbar{width:5px}
+    .panel-left::-webkit-scrollbar-thumb,.tab-content::-webkit-scrollbar-thumb,.menu-dropdown::-webkit-scrollbar-thumb,#blocks::-webkit-scrollbar-thumb{background:#444;border-radius:3px}
+    .panel-left::-webkit-scrollbar-thumb:hover,.tab-content::-webkit-scrollbar-thumb:hover{background:#555}
   </style>
 </head>
 <body>
-${html}
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="menu-wrap">
+        <button id="menu-btn" type="button"><i class="fa-solid fa-bars"></i> Menu</button>
+        <div id="menu-dropdown" class="menu-dropdown">
+
+          <div class="menu-section">
+            <div class="menu-section-title">Pages</div>
+            <div class="menu-row">
+              <select id="page-select" class="menu-select" aria-label="Select page"></select>
+            </div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-add-page"><i class="fa-solid fa-plus"></i> Add</button>
+              <button type="button" class="menu-btn" id="btn-rename-page"><i class="fa-solid fa-pen"></i> Rename</button>
+              <button type="button" class="menu-btn" id="btn-delete-page"><i class="fa-solid fa-trash"></i> Delete</button>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <div class="menu-section-title">Devices</div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn active" data-device="Desktop"><i class="fa-solid fa-desktop"></i> Desktop</button>
+              <button type="button" class="menu-btn" data-device="Tablet"><i class="fa-solid fa-tablet-screen-button"></i> Tablet</button>
+              <button type="button" class="menu-btn" data-device="Mobile"><i class="fa-solid fa-mobile-screen-button"></i> Mobile</button>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <div class="menu-section-title">Canvas</div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-undo"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+              <button type="button" class="menu-btn" id="btn-redo"><i class="fa-solid fa-rotate-right"></i> Redo</button>
+            </div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-clear"><i class="fa-solid fa-eraser"></i> Clear Canvas</button>
+              <button type="button" class="menu-btn" id="btn-preview"><i class="fa-solid fa-eye"></i> Preview</button>
+            </div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-fullscreen"><i class="fa-solid fa-expand"></i> Fullscreen</button>
+              <button type="button" class="menu-btn" id="btn-borders"><i class="fa-solid fa-border-all"></i> Toggle Borders</button>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <div class="menu-section-title">Import / Export</div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-import"><i class="fa-solid fa-file-import"></i> Import HTML</button>
+              <button type="button" class="menu-btn" id="btn-export-html"><i class="fa-solid fa-code"></i> View Code</button>
+            </div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-download-page"><i class="fa-solid fa-download"></i> Download Page</button>
+              <button type="button" class="menu-btn" id="btn-download-zip"><i class="fa-solid fa-file-zipper"></i> Export ZIP</button>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <div class="menu-section-title">Settings</div>
+            <div class="menu-row">
+              <input type="password" id="github-token" class="menu-input" placeholder="GitHub Personal Access Token">
+            </div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-save-token"><i class="fa-solid fa-key"></i> Save Token</button>
+              <button type="button" class="menu-btn" id="btn-clear-storage"><i class="fa-solid fa-database"></i> Clear Storage</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="status" class="status-text">Ready</span>
+      <button id="publish-btn" class="btn-publish" type="button"><i class="fa-solid fa-rocket"></i> Publish</button>
+    </div>
+  </header>
+
+  <div class="editor-wrap">
+    <div class="panel-left">
+      <div class="panel-header">Blocks</div>
+      <div id="blocks"></div>
+    </div>
+    <div class="editor-canvas">
+      <div id="gjs"></div>
+    </div>
+    <div class="panel-right">
+      <div class="panel-tabs">
+        <button class="tab-btn active" data-tab="tab-styles">Styles</button>
+        <button class="tab-btn" data-tab="tab-traits">Settings</button>
+        <button class="tab-btn" data-tab="tab-layers">Layers</button>
+      </div>
+      <div class="tab-content" id="tab-styles"><div id="selectors"></div><div id="styles"></div></div>
+      <div class="tab-content" id="tab-traits" style="display:none"><div id="traits"></div></div>
+      <div class="tab-content" id="tab-layers" style="display:none"><div id="layers"></div></div>
+    </div>
+  </div>
+
+  <div id="publish-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fa-solid fa-rocket"></i> Publish Website</div>
+      <div class="modal-section">
+        <div class="modal-section-title"><i class="fa-brands fa-github"></i> Publish to GitHub Pages</div>
+        <div class="modal-note">Commits all pages directly to your GitHub repository. <span id="repo-info" style="color:#aaa"></span></div>
+        <button type="button" class="modal-btn" id="btn-publish-github"><i class="fa-solid fa-upload"></i> Publish to GitHub</button>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title"><i class="fa-solid fa-download"></i> Download as ZIP</div>
+        <div class="modal-note">Downloads all pages as a ZIP file you can host anywhere.</div>
+        <button type="button" class="modal-btn modal-btn-secondary" id="btn-publish-zip"><i class="fa-solid fa-file-zipper"></i> Download ZIP</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-close" id="btn-close-publish">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="import-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fa-solid fa-file-import"></i> Import HTML</div>
+      <textarea id="import-textarea" class="modal-textarea" placeholder="Paste your HTML code here..."></textarea>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn" id="btn-do-import"><i class="fa-solid fa-check"></i> Import</button>
+        <button type="button" class="modal-close" id="btn-close-import">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="export-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fa-solid fa-code"></i> Page Code</div>
+      <textarea id="export-textarea" class="modal-textarea" readonly></textarea>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn" id="btn-copy-code"><i class="fa-solid fa-copy"></i> Copy</button>
+        <button type="button" class="modal-close" id="btn-close-export">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/grapesjs"></script>
+  <script src="https://unpkg.com/grapesjs-blocks-basic"></script>
+  <script src="https://unpkg.com/grapesjs-plugin-forms"></script>
+  <script src="https://unpkg.com/grapesjs-navbar"></script>
+  <script src="https://unpkg.com/grapesjs-tabs"></script>
+  <script src="https://unpkg.com/grapesjs-custom-code"></script>
+  <script src="https://unpkg.com/grapesjs-tooltip"></script>
+  <script src="https://unpkg.com/grapesjs-component-countdown"></script>
+  <script src="https://unpkg.com/grapesjs-plugin-export"></script>
+  <script src="https://unpkg.com/grapesjs-parser-postcss"></script>
+  <script src="https://unpkg.com/grapesjs-touch"></script>
+  <script src="https://unpkg.com/grapesjs-style-bg"></script>
+  <script src="https://unpkg.com/grapesjs-typed"></script>
+  <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>
+(function () {
+  'use strict';
+
+  // =============================================
+  // CONFIGURATION
+  // =============================================
+  var TOKEN_KEY = 'gjs-builder-token';
+  var PROJECT_KEY = 'gjs-project-v4';
+  var BRANCH = 'main';
+  var statusEl = document.getElementById('status');
+
+  // =============================================
+  // UTILITIES
+  // =============================================
+  function setStatus(msg) { statusEl.textContent = msg; }
+
+  function slugify(str) {
+    return String(str || '').toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64);
+  }
+
+  function detectRepo() {
+    var host = location.hostname;
+    var parts = location.pathname.split('/').filter(Boolean);
+    if (host.endsWith('.github.io')) {
+      return { owner: host.replace('.github.io', ''), repo: parts[0] || host, branch: BRANCH };
+    }
+    return { owner: '', repo: '', branch: BRANCH };
+  }
+
+  function utf8ToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  var repoInfo = detectRepo();
+
+  // =============================================
+  // EDITOR INITIALIZATION
+  // =============================================
+  var editor = grapesjs.init({
+    container: '#gjs',
+    height: '100%',
+    width: 'auto',
+    fromElement: false,
+    panels: { defaults: [] },
+
+    blockManager: { appendTo: '#blocks' },
+    layerManager: { appendTo: '#layers' },
+    traitManager: { appendTo: '#traits' },
+    selectorManager: { appendTo: '#selectors' },
+
+    styleManager: {
+      appendTo: '#styles',
+      sectors: [
+        {
+          name: 'General',
+          open: true,
+          properties: [
+            'display', 'float', 'position',
+            { property: 'top', type: 'integer', units: ['px','%','vh','auto'], defaults: 'auto' },
+            { property: 'right', type: 'integer', units: ['px','%','vw','auto'], defaults: 'auto' },
+            { property: 'bottom', type: 'integer', units: ['px','%','vh','auto'], defaults: 'auto' },
+            { property: 'left', type: 'integer', units: ['px','%','vw','auto'], defaults: 'auto' },
+            'overflow', 'overflow-x', 'overflow-y',
+          ],
+        },
+        {
+          name: 'Flex',
+          open: false,
+          properties: [
+            'flex-direction', 'flex-wrap', 'justify-content', 'align-items',
+            'align-content', 'order', 'flex-basis', 'flex-grow', 'flex-shrink', 'align-self', 'gap',
+          ],
+        },
+        {
+          name: 'Dimension',
+          open: true,
+          properties: [
+            'width', 'min-width', 'max-width',
+            'height', 'min-height', 'max-height',
+            'margin', 'padding',
+          ],
+        },
+        {
+          name: 'Typography',
+          open: true,
+          properties: [
+            'font-family', 'font-size', 'font-weight', 'letter-spacing',
+            'color', 'line-height', 'text-align', 'text-decoration',
+            'text-transform', 'font-style', 'text-shadow', 'white-space', 'word-break',
+          ],
+        },
+        {
+          name: 'Decorations',
+          open: true,
+          properties: [
+            'opacity', 'background-color', 'background',
+            'border-radius', 'border', 'box-shadow', 'cursor',
+          ],
+        },
+        {
+          name: 'Transform',
+          open: false,
+          properties: ['transition', 'transform', 'perspective'],
+        },
+      ],
+    },
+
+    deviceManager: {
+      devices: [
+        { name: 'Desktop', width: '' },
+        { name: 'Tablet', width: '768px', widthMedia: '992px' },
+        { name: 'Mobile', width: '320px', widthMedia: '480px' },
+      ],
+    },
+
+    storageManager: {
+      type: 'local',
+      autosave: true,
+      autoload: true,
+      stepsBeforeSave: 1,
+      options: { local: { key: PROJECT_KEY } },
+    },
+
+    pageManager: {
+      pages: [{ id: 'home', name: 'Home', slug: 'home' }],
+    },
+
+    plugins: [
+      'gjs-blocks-basic',
+      'gjs-plugin-forms',
+      'gjs-navbar',
+      'gjs-tabs',
+      'gjs-custom-code',
+      'gjs-tooltip',
+      'gjs-component-countdown',
+      'gjs-plugin-export',
+      'grapesjs-parser-postcss',
+      'grapesjs-touch',
+      'grapesjs-style-bg',
+      'grapesjs-typed',
+    ],
+
+    pluginsOpts: {
+      'gjs-blocks-basic': { flexGrid: true },
+      'gjs-plugin-forms': {},
+      'gjs-navbar': {},
+      'gjs-tabs': {},
+      'gjs-custom-code': {},
+      'gjs-tooltip': {},
+      'gjs-component-countdown': {},
+      'gjs-plugin-export': {},
+      'grapesjs-parser-postcss': {},
+      'grapesjs-touch': {},
+      'grapesjs-style-bg': {},
+      'grapesjs-typed': {},
+    },
+
+    canvas: {
+      styles: ['https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'],
+    },
+  });
+
+  // =============================================
+  // CUSTOM BLOCKS
+  // =============================================
+  var bm = editor.BlockManager;
+
+  bm.add('section', {
+    label: '<i class="fa fa-rectangle-list"></i><div>Section</div>',
+    category: 'Sections',
+    content: '<section style="padding:60px 20px;"><div style="max-width:1200px;margin:0 auto;"><h2>Section Title</h2><p>Add your content here.</p></div></section>',
+  });
+
+  bm.add('hero-section', {
+    label: '<i class="fa fa-image"></i><div>Hero</div>',
+    category: 'Sections',
+    content: '<section style="padding:100px 20px;text-align:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;"><div style="max-width:800px;margin:0 auto;"><h1 style="font-size:48px;margin-bottom:16px;font-weight:700;">Your Amazing Headline</h1><p style="font-size:20px;margin-bottom:32px;opacity:.9;">A compelling subtitle that describes your product or service</p><a href="#" style="display:inline-block;padding:14px 32px;background:#fff;color:#764ba2;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Get Started</a></div></section>',
+  });
+
+  bm.add('feature-section', {
+    label: '<i class="fa fa-table-columns"></i><div>Features</div>',
+    category: 'Sections',
+    content: '<section style="padding:80px 20px;"><div style="max-width:1200px;margin:0 auto;text-align:center;"><h2 style="margin-bottom:48px;font-size:32px;">Our Features</h2><div style="display:flex;gap:32px;flex-wrap:wrap;justify-content:center;"><div style="flex:1;min-width:250px;max-width:350px;padding:32px;border-radius:12px;background:#f8f9fa;"><div style="font-size:36px;margin-bottom:16px;">&#9889;</div><h3 style="margin-bottom:8px;">Fast</h3><p style="color:#666;">Lightning fast performance for all your needs.</p></div><div style="flex:1;min-width:250px;max-width:350px;padding:32px;border-radius:12px;background:#f8f9fa;"><div style="font-size:36px;margin-bottom:16px;">&#128274;</div><h3 style="margin-bottom:8px;">Secure</h3><p style="color:#666;">Enterprise-grade security built right in.</p></div><div style="flex:1;min-width:250px;max-width:350px;padding:32px;border-radius:12px;background:#f8f9fa;"><div style="font-size:36px;margin-bottom:16px;">&#127912;</div><h3 style="margin-bottom:8px;">Beautiful</h3><p style="color:#666;">Stunning designs that look great everywhere.</p></div></div></div></section>',
+  });
+
+  bm.add('cta-section', {
+    label: '<i class="fa fa-bullhorn"></i><div>CTA</div>',
+    category: 'Sections',
+    content: '<section style="padding:80px 20px;background:#1a1a2e;color:#fff;text-align:center;"><div style="max-width:700px;margin:0 auto;"><h2 style="font-size:36px;margin-bottom:16px;">Ready to Get Started?</h2><p style="font-size:18px;margin-bottom:32px;opacity:.8;">Join thousands of happy customers today.</p><a href="#" style="display:inline-block;padding:14px 36px;background:#e94560;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Sign Up Free</a></div></section>',
+  });
+
+  bm.add('testimonial', {
+    label: '<i class="fa fa-quote-left"></i><div>Testimonial</div>',
+    category: 'Sections',
+    content: '<section style="padding:80px 20px;background:#f8f9fa;"><div style="max-width:700px;margin:0 auto;text-align:center;"><div style="font-size:48px;color:#ddd;margin-bottom:24px;">&ldquo;</div><p style="font-size:20px;font-style:italic;color:#555;margin-bottom:24px;">This product has completely transformed the way we work. I could not recommend it more highly.</p><div><strong style="display:block;">Jane Smith</strong><span style="color:#888;font-size:14px;">CEO, Company Inc.</span></div></div></section>',
+  });
+
+  bm.add('pricing', {
+    label: '<i class="fa fa-tags"></i><div>Pricing</div>',
+    category: 'Sections',
+    content: '<section style="padding:80px 20px;"><div style="max-width:900px;margin:0 auto;text-align:center;"><h2 style="margin-bottom:48px;font-size:32px;">Pricing Plans</h2><div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;"><div style="flex:1;min-width:260px;max-width:340px;padding:40px 32px;border:2px solid #e2e8f0;border-radius:16px;"><h3 style="margin-bottom:8px;">Basic</h3><div style="font-size:48px;font-weight:700;margin-bottom:8px;">$9</div><p style="color:#888;margin-bottom:24px;">per month</p><ul style="list-style:none;padding:0;margin-bottom:32px;text-align:left;"><li style="padding:8px 0;border-bottom:1px solid #f1f1f1;">&#10003; 5 Projects</li><li style="padding:8px 0;border-bottom:1px solid #f1f1f1;">&#10003; Basic Support</li><li style="padding:8px 0;">&#10003; 1GB Storage</li></ul><a href="#" style="display:block;padding:12px;background:#f1f5f9;color:#333;text-decoration:none;border-radius:8px;font-weight:600;">Choose Plan</a></div><div style="flex:1;min-width:260px;max-width:340px;padding:40px 32px;border:2px solid #4f46e5;border-radius:16px;"><h3 style="margin-bottom:8px;">Pro</h3><div style="font-size:48px;font-weight:700;margin-bottom:8px;">$29</div><p style="color:#888;margin-bottom:24px;">per month</p><ul style="list-style:none;padding:0;margin-bottom:32px;text-align:left;"><li style="padding:8px 0;border-bottom:1px solid #f1f1f1;">&#10003; 25 Projects</li><li style="padding:8px 0;border-bottom:1px solid #f1f1f1;">&#10003; Priority Support</li><li style="padding:8px 0;">&#10003; 10GB Storage</li></ul><a href="#" style="display:block;padding:12px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Choose Plan</a></div></div></div></section>',
+  });
+
+  bm.add('button-link', {
+    label: '<i class="fa fa-hand-pointer"></i><div>Button</div>',
+    category: 'Elements',
+    content: '<a href="#" style="display:inline-block;padding:12px 28px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;">Button</a>',
+  });
+
+  bm.add('heading', {
+    label: '<i class="fa fa-heading"></i><div>Heading</div>',
+    category: 'Elements',
+    content: '<h2 style="margin:0;">Heading Text</h2>',
+  });
+
+  bm.add('paragraph', {
+    label: '<i class="fa fa-paragraph"></i><div>Paragraph</div>',
+    category: 'Elements',
+    content: '<p style="margin:0;line-height:1.7;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
+  });
+
+  bm.add('divider', {
+    label: '<i class="fa fa-minus"></i><div>Divider</div>',
+    category: 'Elements',
+    content: '<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">',
+  });
+
+  bm.add('spacer', {
+    label: '<i class="fa fa-arrows-up-down"></i><div>Spacer</div>',
+    category: 'Elements',
+    content: '<div style="height:48px;"></div>',
+  });
+
+  bm.add('blockquote', {
+    label: '<i class="fa fa-quote-right"></i><div>Quote</div>',
+    category: 'Elements',
+    content: '<blockquote style="border-left:4px solid #4f46e5;padding:16px 24px;margin:16px 0;background:#f8f9fa;font-style:italic;color:#555;">A great quote goes here.</blockquote>',
+  });
+
+  bm.add('list-block', {
+    label: '<i class="fa fa-list"></i><div>List</div>',
+    category: 'Elements',
+    content: '<ul style="padding-left:20px;line-height:2;"><li>Item one</li><li>Item two</li><li>Item three</li></ul>',
+  });
+
+  bm.add('header-block', {
+    label: '<i class="fa fa-window-maximize"></i><div>Header</div>',
+    category: 'Layout',
+    content: '<header style="display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);"><div style="font-size:22px;font-weight:700;color:#1a1a2e;">Brand</div><nav style="display:flex;gap:24px;"><a href="#" style="color:#333;text-decoration:none;font-weight:500;">Home</a><a href="#" style="color:#333;text-decoration:none;font-weight:500;">About</a><a href="#" style="color:#333;text-decoration:none;font-weight:500;">Services</a><a href="#" style="color:#333;text-decoration:none;font-weight:500;">Contact</a></nav></header>',
+  });
+
+  bm.add('footer-block', {
+    label: '<i class="fa fa-window-minimize"></i><div>Footer</div>',
+    category: 'Layout',
+    content: '<footer style="padding:48px 32px;background:#1a1a2e;color:#fff;"><div style="max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:48px;"><div style="flex:1;min-width:200px;"><h3 style="margin-bottom:16px;font-size:20px;">Brand</h3><p style="color:#8888a0;font-size:14px;">Building amazing websites with ease.</p></div><div style="flex:1;min-width:150px;"><h4 style="margin-bottom:12px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;">Links</h4><div style="display:flex;flex-direction:column;gap:8px;"><a href="#" style="color:#8888a0;text-decoration:none;font-size:14px;">Home</a><a href="#" style="color:#8888a0;text-decoration:none;font-size:14px;">About</a><a href="#" style="color:#8888a0;text-decoration:none;font-size:14px;">Contact</a></div></div></div><div style="max-width:1200px;margin:32px auto 0;padding-top:24px;border-top:1px solid #2a2a4a;text-align:center;"><p style="color:#666;font-size:13px;">&copy; 2025 Brand. All rights reserved.</p></div></footer>',
+  });
+
+  // =============================================
+  // LINK TRAIT SYSTEM
+  // =============================================
+  function getPageOptions() {
+    return editor.Pages.getAll().map(function (page, i) {
+      return { id: page.getId(), label: page.get('name') || 'Page ' + (i + 1) };
+    });
+  }
+
+  function getPageFilename(page, index) {
+    if (!page) return 'index.html';
+    var name = page.get('name') || page.getId() || 'page-' + (index + 1);
+    var slug = page.get('slug') || slugify(name);
+    return index === 0 ? 'index.html' : (slug || 'page-' + (index + 1)) + '.html';
+  }
+
+  function resolveInternalHref(pageId) {
+    var pages = editor.Pages.getAll();
+    for (var i = 0; i < pages.length; i++) {
+      if (pages[i].getId() === pageId) return getPageFilename(pages[i], i);
+    }
+    return '#';
+  }
+
+  var dc = editor.DomComponents;
+  var linkType = dc.getType('link');
+  if (linkType) {
+    dc.addType('link', {
+      model: {
+        defaults: {
+          traits: [
+            {
+              type: 'select', name: 'linkType', label: 'Link Type', changeProp: true,
+              options: [{ id: 'url', label: 'External URL' }, { id: 'page', label: 'Internal Page' }],
+            },
+            { type: 'text', name: 'href', label: 'URL', placeholder: 'https://example.com' },
+            {
+              type: 'select', name: 'internalPage', label: 'Page', changeProp: true,
+              options: [{ id: '', label: '-- Select Page --' }],
+            },
+            {
+              type: 'select', name: 'target', label: 'Open in',
+              options: [{ id: '', label: 'Same Window' }, { id: '_blank', label: 'New Window' }],
+            },
+            { type: 'text', name: 'title', label: 'Title' },
+          ],
+          linkType: 'url',
+          internalPage: '',
+        },
+        init: function () {
+          this.on('change:linkType', this.handleLinkType);
+          this.on('change:internalPage', this.handleInternalPage);
+        },
+        handleLinkType: function () {
+          if (this.get('linkType') === 'page') {
+            var pageId = this.get('internalPage');
+            if (pageId) this.addAttributes({ href: resolveInternalHref(pageId) });
+          }
+        },
+        handleInternalPage: function () {
+          if (this.get('linkType') === 'page') {
+            var pageId = this.get('internalPage');
+            if (pageId) this.addAttributes({ href: resolveInternalHref(pageId) });
+          }
+        },
+      },
+    });
+  }
+
+  editor.on('component:selected', function (component) {
+    if (!component) return;
+    var tag = component.get('tagName');
+    var type = component.get('type');
+    if (type === 'link' || tag === 'a') {
+      var opts = [{ id: '', label: '-- Select Page --' }].concat(getPageOptions());
+      var traits = component.get('traits');
+      if (traits) {
+        var pt = traits.where ? traits.where({ name: 'internalPage' }) : [];
+        if (pt.length) pt[0].set('options', opts);
+      }
+    }
+  });
+
+  // =============================================
+  // PAGE MANAGEMENT
+  // =============================================
+  var pageSelect = document.getElementById('page-select');
+
+  function refreshPages() {
+    var pages = editor.Pages.getAll();
+    var selected = editor.Pages.getSelected();
+    pageSelect.innerHTML = '';
+    pages.forEach(function (page, i) {
+      var opt = document.createElement('option');
+      opt.value = page.getId();
+      opt.textContent = (i + 1) + '. ' + (page.get('name') || page.getId());
+      if (selected && selected.getId() === page.getId()) opt.selected = true;
+      pageSelect.appendChild(opt);
+    });
+  }
+
+  function addPage() {
+    var name = prompt('Page name:', 'New Page');
+    if (!name) return;
+    var slug = slugify(name);
+    var id = 'page-' + Date.now();
+    var page = editor.Pages.add({ id: id, name: name.trim(), slug: slug });
+    editor.Pages.select(page);
+    editor.setComponents('<section style="padding:60px 20px;text-align:center;"><h1>' + name.trim() + '</h1><p>Start building this page.</p></section>');
+    refreshPages();
+    setStatus('Page "' + name.trim() + '" created.');
+  }
+
+  function renamePage() {
+    var page = editor.Pages.getSelected();
+    if (!page) return;
+    var name = prompt('Rename page:', page.get('name') || '');
+    if (!name) return;
+    page.set('name', name.trim());
+    page.set('slug', slugify(name));
+    refreshPages();
+    setStatus('Renamed to "' + name.trim() + '".');
+  }
+
+  function deletePage() {
+    if (editor.Pages.getAll().length <= 1) { setStatus('Cannot delete the only page.'); return; }
+    var page = editor.Pages.getSelected();
+    if (!page) return;
+    if (!confirm('Delete "' + (page.get('name') || page.getId()) + '"?')) return;
+    editor.Pages.remove(page);
+    var first = editor.Pages.getAll().at(0);
+    if (first) editor.Pages.select(first);
+    refreshPages();
+    setStatus('Page deleted.');
+  }
+
+  // =============================================
+  // EXPORT HTML
+  // =============================================
+  function resolveLinksOnCurrentPage() {
+    var wrapper = editor.getWrapper();
+    if (!wrapper) return;
+    var links = wrapper.find('a');
+    links.forEach(function (link) {
+      if (link.get('linkType') === 'page') {
+        var pid = link.get('internalPage');
+        if (pid) link.addAttributes({ href: resolveInternalHref(pid) });
+      }
+    });
+  }
+
+  function getExportHtml(title) {
+    var html = editor.getHtml();
+    var css = editor.getCss();
+    return '<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + (title || 'Site') + '</title>\n  <link rel="preconnect" href="https://fonts.googleapis.com">\n  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n  <style>\n' + css + '\n  </style>\n</head>\n<body>\n' + html + '\n</body>\n</html>';
+  }
+
+  function collectAllPages() {
+    var activePage = editor.Pages.getSelected();
+    var pages = editor.Pages.getAll();
+    var output = [];
+    pages.forEach(function (page, i) {
+      editor.Pages.select(page);
+      resolveLinksOnCurrentPage();
+      output.push({
+        id: page.getId(),
+        name: page.get('name') || 'Page ' + (i + 1),
+        filename: getPageFilename(page, i),
+        html: getExportHtml(page.get('name') || 'Site'),
+      });
+    });
+    if (activePage) editor.Pages.select(activePage);
+    return output;
+  }
+
+  // =============================================
+  // PUBLISH: GITHUB
+  // =============================================
+  function getFileSha(owner, repo, branch, path, token) {
+    return fetch(
+      'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + encodeURIComponent(path) + '?ref=' + encodeURIComponent(branch),
+      { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } }
+    ).then(function (res) {
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error('GitHub API error (' + res.status + ') for ' + path);
+      return res.json().then(function (d) { return d.sha; });
+    });
+  }
+
+  function uploadFile(owner, repo, branch, path, content, token) {
+    return getFileSha(owner, repo, branch, path, token).then(function (sha) {
+      var body = { message: 'Update ' + path + ' via Builder', content: utf8ToBase64(content), branch: branch };
+      if (sha) body.sha = sha;
+      return fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path, {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).then(function (res) {
+        if (!res.ok) return res.text().then(function (t) { throw new Error('Upload failed (' + res.status + '): ' + t); });
+      });
+    });
+  }
+
+  function publishToGitHub() {
+    var token = localStorage.getItem(TOKEN_KEY) || '';
+    var owner = repoInfo.owner, repo = repoInfo.repo, branch = repoInfo.branch;
+    if (!owner || !repo) { setStatus('Open from your GitHub Pages URL to auto-detect repo.'); return Promise.resolve(); }
+    if (!token) { setStatus('Save your GitHub token in Menu \u2192 Settings first.'); return Promise.resolve(); }
+    var pages = collectAllPages();
+    setStatus('Publishing ' + pages.length + ' page(s)\u2026');
+    var chain = Promise.resolve();
+    pages.forEach(function (page) {
+      chain = chain.then(function () { return uploadFile(owner, repo, branch, page.filename, page.html, token); });
+    });
+    chain = chain.then(function () { return uploadFile(owner, repo, branch, '.nojekyll', '', token); });
+    return chain.then(function () {
+      setStatus('\u2713 Published ' + pages.length + ' page(s) successfully!');
+    }).catch(function (err) {
+      setStatus('Error: ' + err.message);
+      console.error(err);
+    });
+  }
+
+  // =============================================
+  // PUBLISH: ZIP DOWNLOAD
+  // =============================================
+  function downloadAsZip() {
+    try {
+      var pages = collectAllPages();
+      var zip = new JSZip();
+      pages.forEach(function (p) { zip.file(p.filename, p.html); });
+      zip.file('.nojekyll', '');
+      return zip.generateAsync({ type: 'blob' }).then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'website.zip';
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+        setStatus('Downloaded ' + pages.length + ' page(s) as ZIP.');
+      });
+    } catch (err) {
+      setStatus('Error: ' + err.message);
+      console.error(err);
+      return Promise.resolve();
+    }
+  }
+
+  // =============================================
+  // DEFAULT CONTENT
+  // =============================================
+  function ensureDefaultContent() {
+    var home = editor.Pages.getAll().at(0);
+    if (!home) return;
+    editor.Pages.select(home);
+    var wrapper = editor.getWrapper();
+    if (!wrapper || wrapper.components().length) return;
+    editor.setComponents(
+      '<section style="padding:100px 20px;text-align:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;">' +
+        '<div style="max-width:800px;margin:0 auto;">' +
+          '<h1 style="font-size:48px;margin-bottom:16px;font-weight:700;">Welcome to Your Website</h1>' +
+          '<p style="font-size:20px;margin-bottom:32px;opacity:.9;">Build beautiful pages with drag and drop</p>' +
+          '<a href="#" style="display:inline-block;padding:14px 32px;background:#fff;color:#764ba2;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Get Started</a>' +
+        '</div>' +
+      '</section>'
+    );
+  }
+  ensureDefaultContent();
+
+  // =============================================
+  // UI: MENU TOGGLE
+  // =============================================
+  var menuDropdown = document.getElementById('menu-dropdown');
+  document.getElementById('menu-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    menuDropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
+  });
+
+  // =============================================
+  // UI: RIGHT PANEL TABS
+  // =============================================
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (c) { c.style.display = 'none'; });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).style.display = 'block';
+    });
+  });
+
+  // =============================================
+  // UI: PAGE MANAGEMENT
+  // =============================================
+  pageSelect.addEventListener('change', function (e) {
+    var page = editor.Pages.get(e.target.value);
+    if (page) editor.Pages.select(page);
+  });
+  document.getElementById('btn-add-page').addEventListener('click', addPage);
+  document.getElementById('btn-rename-page').addEventListener('click', renamePage);
+  document.getElementById('btn-delete-page').addEventListener('click', deletePage);
+
+  // =============================================
+  // UI: DEVICES
+  // =============================================
+  document.querySelectorAll('[data-device]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      editor.setDevice(btn.dataset.device);
+      document.querySelectorAll('[data-device]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+
+  // =============================================
+  // UI: CANVAS ACTIONS
+  // =============================================
+  document.getElementById('btn-undo').addEventListener('click', function () { editor.UndoManager.undo(); });
+  document.getElementById('btn-redo').addEventListener('click', function () { editor.UndoManager.redo(); });
+  document.getElementById('btn-clear').addEventListener('click', function () {
+    if (confirm('Clear the entire canvas?')) {
+      editor.DomComponents.clear();
+      editor.CssComposer.clear();
+      setStatus('Canvas cleared.');
+    }
+  });
+  document.getElementById('btn-preview').addEventListener('click', function () { editor.runCommand('preview'); });
+  document.getElementById('btn-fullscreen').addEventListener('click', function () {
+    if (!document.fullscreenElement) { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  });
+  document.getElementById('btn-borders').addEventListener('click', function () {
+    if (editor.Commands.isActive('sw-visibility')) editor.stopCommand('sw-visibility');
+    else editor.runCommand('sw-visibility');
+  });
+
+  // =============================================
+  // UI: IMPORT / EXPORT
+  // =============================================
+  document.getElementById('btn-import').addEventListener('click', function () {
+    document.getElementById('import-textarea').value = '';
+    document.getElementById('import-modal').classList.add('open');
+    menuDropdown.classList.remove('open');
+  });
+  document.getElementById('btn-close-import').addEventListener('click', function () {
+    document.getElementById('import-modal').classList.remove('open');
+  });
+  document.getElementById('btn-do-import').addEventListener('click', function () {
+    var html = document.getElementById('import-textarea').value;
+    if (html.trim()) { editor.setComponents(html); setStatus('HTML imported.'); }
+    document.getElementById('import-modal').classList.remove('open');
+  });
+
+  document.getElementById('btn-export-html').addEventListener('click', function () {
+    var sel = editor.Pages.getSelected();
+    document.getElementById('export-textarea').value = getExportHtml(sel ? sel.get('name') : 'Site');
+    document.getElementById('export-modal').classList.add('open');
+    menuDropdown.classList.remove('open');
+  });
+  document.getElementById('btn-close-export').addEventListener('click', function () {
+    document.getElementById('export-modal').classList.remove('open');
+  });
+  document.getElementById('btn-copy-code').addEventListener('click', function () {
+    var ta = document.getElementById('export-textarea');
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(ta.value).then(function () { setStatus('Code copied.'); })
+        .catch(function () { ta.select(); document.execCommand('copy'); setStatus('Copied.'); });
+    } else { ta.select(); document.execCommand('copy'); setStatus('Copied.'); }
+  });
+
+  document.getElementById('btn-download-page').addEventListener('click', function () {
+    var sel = editor.Pages.getSelected();
+    var pages = editor.Pages.getAll();
+    var idx = Math.max(0, pages.indexOf(sel));
+    var filename = getPageFilename(sel, idx);
+    var blob = new Blob([getExportHtml(sel ? sel.get('name') : 'Site')], { type: 'text/html' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    setStatus('Downloaded ' + filename);
+    menuDropdown.classList.remove('open');
+  });
+
+  document.getElementById('btn-download-zip').addEventListener('click', function () {
+    menuDropdown.classList.remove('open');
+    downloadAsZip();
+  });
+
+  // =============================================
+  // UI: SETTINGS
+  // =============================================
+  var tokenInput = document.getElementById('github-token');
+  if (localStorage.getItem(TOKEN_KEY)) tokenInput.placeholder = 'Token saved \u2022\u2022\u2022\u2022';
+
+  document.getElementById('btn-save-token').addEventListener('click', function () {
+    var token = tokenInput.value.trim();
+    if (!token) { setStatus('Enter a token first.'); return; }
+    localStorage.setItem(TOKEN_KEY, token);
+    tokenInput.value = '';
+    tokenInput.placeholder = 'Token saved \u2022\u2022\u2022\u2022';
+    setStatus('Token saved.');
+  });
+
+  document.getElementById('btn-clear-storage').addEventListener('click', function () {
+    if (confirm('Clear all saved data? This deletes your pages and settings.')) {
+      localStorage.removeItem(PROJECT_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      setStatus('Storage cleared. Reload the page to start fresh.');
+    }
+  });
+
+  // =============================================
+  // UI: PUBLISH MODAL
+  // =============================================
+  document.getElementById('publish-btn').addEventListener('click', function () {
+    var info = document.getElementById('repo-info');
+    info.textContent = repoInfo.owner && repoInfo.repo
+      ? 'Repo: ' + repoInfo.owner + '/' + repoInfo.repo
+      : 'Repo not detected \u2014 open from GitHub Pages URL.';
+    document.getElementById('publish-modal').classList.add('open');
+  });
+  document.getElementById('btn-close-publish').addEventListener('click', function () {
+    document.getElementById('publish-modal').classList.remove('open');
+  });
+  document.getElementById('btn-publish-github').addEventListener('click', function () {
+    document.getElementById('publish-modal').classList.remove('open');
+    publishToGitHub();
+  });
+  document.getElementById('btn-publish-zip').addEventListener('click', function () {
+    document.getElementById('publish-modal').classList.remove('open');
+    downloadAsZip();
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(function (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+  });
+
+  // =============================================
+  // UI: KEYBOARD SHORTCUTS
+  // =============================================
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      editor.store();
+      setStatus('Saved.');
+    }
+  });
+
+  // =============================================
+  // EDITOR EVENTS
+  // =============================================
+  editor.on('page', refreshPages);
+  editor.on('page:select', refreshPages);
+  editor.on('storage:store', function () { setStatus('Saved'); });
+  editor.on('load', function () {
+    refreshPages();
+    try { editor.runCommand('sw-visibility'); } catch (e) {}
+  });
+
+  // Switch to Settings tab when component is double-clicked for editing
+  editor.on('component:selected', function () {
+    var activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab && activeTab.dataset.tab === 'tab-layers') {
+      // don't switch from layers
+    }
+  });
+
+  // =============================================
+  // INITIAL STATE
+  // =============================================
+  refreshPages();
+  try { editor.runCommand('sw-visibility'); } catch (e) {}
+  setStatus('Ready');
+
+})();
+  </script>
 </body>
-</html>`;
-      }
-
-      function utf8ToBase64(str) {
-        return btoa(unescape(encodeURIComponent(str)));
-      }
-
-      async function getExistingFileSha(owner, repo, branch, path, token) {
-        const res = await fetch(
-          `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: 'application/vnd.github+json',
-            },
-          }
-        );
-
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error(`GitHub lookup failed (${res.status}) for ${path}`);
-
-        const data = await res.json();
-        return data.sha;
-      }
-
-      async function uploadFileToGitHub(owner, repo, branch, path, content, token) {
-        let sha = await getExistingFileSha(owner, repo, branch, path, token);
-
-        for (let attempt = 0; attempt < 2; attempt += 1) {
-          const payload = {
-            message: `Publish ${path} from GrapesJS builder`,
-            content: utf8ToBase64(content),
-            branch,
-          };
-
-          if (sha) payload.sha = sha;
-
-          const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-            method: 'PUT',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: 'application/vnd.github+json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (res.ok) return;
-          if (res.status === 409 && attempt === 0) {
-            sha = await getExistingFileSha(owner, repo, branch, path, token);
-            continue;
-          }
-
-          const errorText = await res.text();
-          throw new Error(`Publish failed (${res.status}) for ${path}: ${errorText}`);
-        }
-      }
-
-      function collectPagesForExport(editor) {
-        const activePage = editor.Pages.getSelected();
-        const output = editor.Pages.getAll().map((page, index) => {
-          editor.Pages.select(page);
-          return {
-            id: page.getId(),
-            name: page.get('name') || `Page ${index + 1}`,
-            filename: getPageFilename(page, index),
-            html: getExportHtml(editor),
-          };
-        });
-
-        if (activePage) editor.Pages.select(activePage);
-        return output;
-      }
-
-      function withInternalLinkTraits(defaults) {
-        const baseTraits = defaults.traits || [];
-        const traitNames = baseTraits.map(tr => (typeof tr === 'string' ? tr : tr.name));
-        if (traitNames.includes('linkType')) return baseTraits;
-
-        return [
-          ...baseTraits,
-          {
-            type: 'select',
-            name: 'linkType',
-            label: 'Link Type',
-            options: [
-              { id: 'external', label: 'External URL' },
-              { id: 'internal', label: 'Internal Page' },
-            ],
-            changeProp: 1,
-          },
-          { type: 'text', name: 'href', label: 'External URL', placeholder: 'https://example.com' },
-          {
-            type: 'select',
-            name: 'internalPage',
-            label: 'Internal Page',
-            options: [{ id: '', label: 'Select page' }],
-            changeProp: 1,
-          },
-        ];
-      }
-
-      function ensureLinkBehavior(editor) {
-        const domc = editor.DomComponents;
-        const defaultType = domc.getType('default');
-
-        ['link'].forEach(typeName => {
-          const type = domc.getType(typeName);
-          if (!type) return;
-
-          domc.addType(typeName, {
-            model: type.model.extend(
-              {
-                defaults: {
-                  ...type.model.prototype.defaults,
-                  traits: withInternalLinkTraits(type.model.prototype.defaults),
-                  linkType: 'external',
-                  internalPage: '',
-                },
-
-                init() {
-                  this.listenTo(this, 'change:linkType change:attributes:href change:internalPage', () => {
-                    const linkType = this.get('linkType') || 'external';
-                    const attrs = { ...(this.getAttributes() || {}) };
-                    if (linkType === 'internal') {
-                      const pageId = this.get('internalPage');
-                      const targetHref = resolveInternalHref(editor, pageId);
-                      attrs.href = targetHref || attrs.href || '#';
-                      if (this.get('tagName') === 'button') {
-                        attrs.onclick = attrs.href ? `window.location.href='${attrs.href}'` : '';
-                      }
-                    } else if (this.get('tagName') === 'button') {
-                      const href = attrs.href || '#';
-                      attrs.onclick = `window.location.href='${href}'`;
-                    }
-                    this.setAttributes(attrs);
-                  });
-                },
-              },
-              {
-                isComponent: type.model.isComponent || defaultType.model.isComponent,
-              }
-            ),
-            view: type.view,
-          });
-        });
-      }
-
-      function refreshPageSelector(editor) {
-        const pages = editor.Pages.getAll();
-        const selected = editor.Pages.getSelected();
-        pageSelector.innerHTML = '';
-
-        pages.forEach((page, index) => {
-          const option = document.createElement('option');
-          option.value = page.getId();
-          option.textContent = `${index + 1}. ${page.get('name') || page.getId()}`;
-          if (selected && selected.getId() === page.getId()) option.selected = true;
-          pageSelector.appendChild(option);
-        });
-      }
-
-      function refreshInternalPageTraitOptions(editor) {
-        const pageOptions = getPageFileMap(editor).map(page => ({
-          id: page.id,
-          label: `${page.name} (${page.filename})`,
-        }));
-
-        const wrapper = editor.getWrapper();
-        if (!wrapper) return;
-        const components = [...wrapper.find('a'), ...wrapper.find('button')];
-
-        components.forEach(component => {
-          const traits = component.get('traits') || [];
-          traits.forEach(trait => {
-            if (typeof trait !== 'string' && trait.name === 'internalPage') {
-              trait.options = [{ id: '', label: 'Select page' }, ...pageOptions];
-            }
-          });
-          component.set('traits', [...traits]);
-        });
-      }
-
-      function createNewPage(editor) {
-        const name = window.prompt('New page name (eg: About):', 'New Page');
-        if (!name) return;
-
-        const slugInput = window.prompt('Slug (eg: about). Leave blank to auto-generate:', slugify(name));
-        const slug = slugify(slugInput || name);
-        const id = `page-${Date.now()}`;
-
-        const page = editor.Pages.add({ id, name: name.trim(), slug });
-        editor.Pages.select(page);
-        editor.setComponents(`<section style="padding:40px 20px;"><h1>${name}</h1><p>Start building this page.</p></section>`);
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = `Created page "${name}".`;
-      }
-
-      const editor = grapesjs.init({
-        container: '#gjs',
-        fromElement: false,
-        height: '100%',
-        width: 'auto',
-        storageManager: {
-          type: 'local',
-          autosave: true,
-          autoload: true,
-          stepsBeforeSave: 1,
-          options: {
-            local: {
-              key: PROJECT_STORAGE_KEY,
-            },
-          },
-        },
-        pageManager: {
-          pages: [{ id: 'home', name: 'Home', slug: 'home' }],
-        },
-        plugins: [
-          'gjs-preset-webpage',
-          'gjs-blocks-basic',
-          'gjs-plugin-forms',
-          'gjs-navbar',
-          'gjs-tabs',
-          'gjs-custom-code',
-          'gjs-tooltip',
-          'gjs-component-countdown',
-          'gjs-plugin-export',
-          'grapesjs-parser-postcss',
-          'grapesjs-touch',
-          'grapesjs-style-bg',
-          'grapesjs-typed',
-        ],
-        pluginsOpts: {
-          'gjs-preset-webpage': {
-            blocksBasicOpts: { flexGrid: true },
-            navbarOpts: true,
-            formsOpts: true,
-            countdownOpts: true,
-          },
-          'gjs-blocks-basic': { flexGrid: true },
-          'gjs-plugin-forms': {},
-          'gjs-navbar': {},
-          'gjs-tabs': {},
-          'gjs-custom-code': {},
-          'gjs-tooltip': {},
-          'gjs-component-countdown': {},
-          'gjs-plugin-export': {},
-          'grapesjs-parser-postcss': {},
-          'grapesjs-touch': {},
-          'grapesjs-style-bg': {},
-          'grapesjs-typed': {},
-        },
-      });
-
-      ensureLinkBehavior(editor);
-
-      if (!repoInfo.owner || !repoInfo.repo) {
-        statusEl.textContent = 'Open this via your GitHub Pages URL for one-click publish.';
-      }
-
-      const savedToken = localStorage.getItem(STORAGE_KEY);
-      if (savedToken) tokenInput.value = savedToken;
-
-      function ensureDefaultHomeContent() {
-        const home = editor.Pages.getAll().at(0);
-        if (!home) return;
-
-        editor.Pages.select(home);
-        const wrapper = editor.getWrapper();
-        if (!wrapper || wrapper.components().length) return;
-
-        editor.setComponents(`
-          <section style="padding: 48px 20px; text-align: center;">
-            <h1 style="margin: 0 0 12px;">Welcome to your GrapesJS Builder</h1>
-            <p style="margin: 0;">Build multiple pages and link them with internal page links.</p>
-          </section>
-        `);
-      }
-
-      ensureDefaultHomeContent();
-
-      // Ensure manager commands are easy to access
-      const pn = editor.Panels;
-      if (!pn.getButton('options', 'open-blocks')) pn.addButton('options', { id: 'open-blocks', className: 'fa fa-th-large', command: 'open-blocks' });
-      if (!pn.getButton('options', 'open-layers')) pn.addButton('options', { id: 'open-layers', className: 'fa fa-bars', command: 'open-layers' });
-      if (!pn.getButton('options', 'open-sm')) pn.addButton('options', { id: 'open-sm', className: 'fa fa-paint-brush', command: 'open-sm' });
-      if (!pn.getButton('options', 'open-tm')) pn.addButton('options', { id: 'open-tm', className: 'fa fa-cog', command: 'open-tm' });
-      if (!pn.getButton('options', 'open-assets')) pn.addButton('options', { id: 'open-assets', className: 'fa fa-folder-open', command: 'open-assets' });
-
-      editor.Commands.run('open-blocks');
-
-      const bm = editor.BlockManager;
-      const blockCategory = 'Extra Components';
-      bm.add('extra-section', {
-        label: 'Section',
-        category: blockCategory,
-        content: '<section style="padding:40px 20px;"><h2>Section title</h2><p>Add content here.</p></section>',
-      });
-      bm.add('extra-button', {
-        label: 'Button Link',
-        category: blockCategory,
-        content: '<a href="#" style="display:inline-block;padding:10px 16px;background:#1f6feb;color:#fff;text-decoration:none;border-radius:6px;">Button</a>',
-      });
-
-      refreshPageSelector(editor);
-      refreshInternalPageTraitOptions(editor);
-
-      editor.on('page', () => {
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-      });
-      editor.on('page:select', () => {
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-      });
-      editor.on('storage:store', () => {
-        statusEl.textContent = 'Saved locally.';
-      });
-
-      document.getElementById('menu-toggle').addEventListener('click', e => {
-        e.stopPropagation();
-        menuDropdown.classList.toggle('open');
-      });
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
-      });
-
-      pageSelector.addEventListener('change', e => {
-        const target = editor.Pages.get(e.target.value);
-        if (target) editor.Pages.select(target);
-      });
-
-      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
-
-      document.getElementById('rename-page').addEventListener('click', () => {
-        const page = editor.Pages.getSelected();
-        if (!page) return;
-
-        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
-        if (!nextName) return;
-
-        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
-        page.set('name', nextName.trim());
-        page.set('slug', slugify(nextSlugInput || nextName));
-
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = `Renamed page to "${nextName}".`;
-      });
-
-      document.getElementById('delete-page').addEventListener('click', () => {
-        const pages = editor.Pages.getAll();
-        if (pages.length <= 1) {
-          statusEl.textContent = 'At least one page is required.';
-          return;
-        }
-
-        const selected = editor.Pages.getSelected();
-        if (!selected) return;
-
-        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
-        if (!ok) return;
-
-        editor.Pages.remove(selected);
-        const first = editor.Pages.getAll().at(0);
-        if (first) editor.Pages.select(first);
-
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = 'Page deleted.';
-      });
-
-      refreshPageSelector(editor);
-      refreshInternalPageTraitOptions(editor);
-
-      editor.on('page', () => {
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-      });
-      editor.on('page:select', () => {
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-      });
-      editor.on('storage:store', () => {
-        statusEl.textContent = 'Saved locally.';
-      });
-
-      document.getElementById('menu-toggle').addEventListener('click', e => {
-        e.stopPropagation();
-        menuDropdown.classList.toggle('open');
-      });
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
-      });
-
-      pageSelector.addEventListener('change', e => {
-        const target = editor.Pages.get(e.target.value);
-        if (target) editor.Pages.select(target);
-      });
-
-      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
-
-      document.getElementById('rename-page').addEventListener('click', () => {
-        const page = editor.Pages.getSelected();
-        if (!page) return;
-
-        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
-        if (!nextName) return;
-
-        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
-        page.set('name', nextName.trim());
-        page.set('slug', slugify(nextSlugInput || nextName));
-
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = `Renamed page to "${nextName}".`;
-      });
-
-      document.getElementById('delete-page').addEventListener('click', () => {
-        const pages = editor.Pages.getAll();
-        if (pages.length <= 1) {
-          statusEl.textContent = 'At least one page is required.';
-          return;
-        }
-
-        const selected = editor.Pages.getSelected();
-        if (!selected) return;
-
-        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
-        if (!ok) return;
-
-        editor.Pages.remove(selected);
-        const first = editor.Pages.getAll().at(0);
-        if (first) editor.Pages.select(first);
-
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = 'Page deleted.';
-      });
-
-      refreshPageSelector(editor);
-      refreshInternalPageTraitOptions(editor);
-
-      editor.on('page', () => {
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-      });
-      editor.on('page:select', () => {
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-      });
-      editor.on('storage:store', () => {
-        statusEl.textContent = 'Saved locally.';
-      });
-
-      document.getElementById('menu-toggle').addEventListener('click', e => {
-        e.stopPropagation();
-        menuDropdown.classList.toggle('open');
-      });
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.menu-wrap')) menuDropdown.classList.remove('open');
-      });
-
-      pageSelector.addEventListener('change', e => {
-        const target = editor.Pages.get(e.target.value);
-        if (target) editor.Pages.select(target);
-      });
-
-      document.getElementById('add-page').addEventListener('click', () => createNewPage(editor));
-
-      document.getElementById('rename-page').addEventListener('click', () => {
-        const page = editor.Pages.getSelected();
-        if (!page) return;
-
-        const nextName = window.prompt('Rename page:', page.get('name') || page.getId());
-        if (!nextName) return;
-
-        const nextSlugInput = window.prompt('Slug:', page.get('slug') || slugify(nextName));
-        page.set('name', nextName.trim());
-        page.set('slug', slugify(nextSlugInput || nextName));
-
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = `Renamed page to "${nextName}".`;
-      });
-
-      document.getElementById('delete-page').addEventListener('click', () => {
-        const pages = editor.Pages.getAll();
-        if (pages.length <= 1) {
-          statusEl.textContent = 'At least one page is required.';
-          return;
-        }
-
-        const selected = editor.Pages.getSelected();
-        if (!selected) return;
-
-        const ok = window.confirm(`Delete page "${selected.get('name') || selected.getId()}"?`);
-        if (!ok) return;
-
-        editor.Pages.remove(selected);
-        const first = editor.Pages.getAll().at(0);
-        if (first) editor.Pages.select(first);
-
-        refreshPageSelector(editor);
-        refreshInternalPageTraitOptions(editor);
-        statusEl.textContent = 'Page deleted.';
-      });
-
-      document.getElementById('save-token').addEventListener('click', () => {
-        const token = tokenInput.value.trim();
-        if (!token) {
-          statusEl.textContent = 'Paste token first.';
-          return;
-        }
-
-        localStorage.setItem(STORAGE_KEY, token);
-        tokenInput.value = '';
-        statusEl.textContent = 'Token saved.';
-      });
-
-      document.getElementById('copy-html').addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(getExportHtml(editor));
-          statusEl.textContent = 'Current page HTML copied.';
-        } catch {
-          statusEl.textContent = 'Clipboard blocked by this browser.';
-        }
-      });
-
-      document.getElementById('download-html').addEventListener('click', () => {
-        const selected = editor.Pages.getSelected();
-        const pages = editor.Pages.getAll();
-        const filename = getPageFilename(selected, Math.max(0, pages.indexOf(selected)));
-
-        const blob = new Blob([getExportHtml(editor)], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        statusEl.textContent = `Downloaded ${filename}`;
-      });
-
-      document.getElementById('download-site').addEventListener('click', () => {
-        const pages = collectPagesForExport(editor);
-
-        pages.forEach(page => {
-          const blob = new Blob([page.html], { type: 'text/html' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-
-          a.href = url;
-          a.download = page.filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        });
-
-        statusEl.textContent = `Exported ${pages.length} page(s).`;
-      });
-
-      async function publishToGitHub() {
-        const token = tokenInput.value.trim() || localStorage.getItem(STORAGE_KEY) || '';
-        const { owner, repo, branch } = repoInfo;
-
-        if (!owner || !repo) {
-          statusEl.textContent = 'Open this from your GitHub Pages URL first.';
-          return;
-        }
-        if (!token) {
-          statusEl.textContent = 'Save your token from Menu > Publish Settings first.';
-          return;
-        }
-
-        try {
-          const pages = collectPagesForExport(editor);
-          statusEl.textContent = `Publishing ${pages.length} page(s)...`;
-
-          for (const page of pages) {
-            await uploadFileToGitHub(owner, repo, branch, page.filename, page.html, token);
-          }
-
-          statusEl.textContent = `Published ${pages.length} page(s).`;
-        } catch (err) {
-          statusEl.textContent = `Error: ${err.message}`;
-        }
-      }
-
-      document.getElementById('publish-github').addEventListener('click', publishToGitHub);
-    </script>
-  </body>
 </html>
