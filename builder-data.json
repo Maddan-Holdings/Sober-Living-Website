@@ -66,10 +66,10 @@
         "background": "#fff",
         "color": "#5500ff",
         "text-decoration": "none",
-        "border-radius": "8px",
+        "border-radius": "50px 50px 50px 50px",
         "font-weight": "600",
         "font-size": "30px",
-        "border": "3px solid black"
+        "border": "3px solid #32cd32"
       }
     },
     {
@@ -839,7 +839,7 @@
       ],
       "style": {
         "margin-bottom": "12px",
-        "font-size": "14px",
+        "font-size": "16px",
         "text-transform": "uppercase",
         "letter-spacing": ".05em"
       }
@@ -849,9 +849,9 @@
         "#icsmeu"
       ],
       "style": {
-        "color": "#8888a0",
+        "color": "white",
         "text-decoration": "none",
-        "font-size": "14px"
+        "font-size": "15px"
       }
     },
     {
@@ -859,9 +859,9 @@
         "#ik5gqx"
       ],
       "style": {
-        "color": "#8888a0",
+        "color": "white",
         "text-decoration": "none",
-        "font-size": "14px"
+        "font-size": "15px"
       }
     },
     {
@@ -869,9 +869,9 @@
         "#illtrl"
       ],
       "style": {
-        "color": "#8888a0",
+        "color": "white",
         "text-decoration": "none",
-        "font-size": "14px"
+        "font-size": "15px"
       }
     },
     {
@@ -910,7 +910,7 @@
         "#iw0zri"
       ],
       "style": {
-        "color": "#666",
+        "color": "white",
         "font-size": "13px"
       }
     },
@@ -1213,7 +1213,17 @@
                         "components": [
                           {
                             "type": "textnode",
-                            "content": "Mens Sober Living in Bowling Green, Ky"
+                            "content": "Mens Sober Living in Bowling Green, Ky "
+                          },
+                          {
+                            "components": [
+                              {
+                                "tagName": "span",
+                                "attributes": {
+                                  "data-canva-clipboard": "ewAiAGEAIgA6ADUALAAiAGgAIgA6ACIAdwB3AHcALgBjAGEAbgB2AGEALgBjAG8AbQAiACwAIgBjACIAOgAiAEQAQQBIAEMAWABhAEsAVgBUADcAVQAiACwAIgBpACIAOgAiADgAOABJAGUAYgB6AFMAaABrAGMAaABVAGoAWAA2AEkAUQBNAFgAVwA2AEEAIgAsACIAYgAiADoAMQA3ADcANQAxADcANAA5ADMAOAAwADIAOQAsACIAagAiADoAWwB7AH0AXQAsACIAbQAiADoAewB9ACwAIgBBAD8AIgA6ACIAQgAiACwAIgBBACIAOgBbAHsAIgBBACIAOgA3ADgAMwAuADQAMwA5ADIANAA1ADEAOAAzADYANAA3ADkALAAiAEIAIgA6ADMAMQA4AC4ANwAyADcAMAA1ADAAMQA4ADMANQA5ADgANAAsACIARAAiADoAMQA4ADMALgA3ADAAMAAxADgANwA5ADcANAA5ADUAMAA2ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUALAAiAEEAPwAiADoAIgBJACIALAAiAF8AIgA6ACIATABCADMAbAA0AFIAWABIAGQAZAA2AGQAcwBLAGYAUAAiACwAIgBhACIAOgB7ACIAQQAiADoAZgBhAGwAcwBlACwAIgBJACIAOgB7ACIAQQAiADoAIgBWAEEARABuADgAYgB5AHMAbABrAG8AIgAsACIATQAiADoAIgBWAEIAbQBWAHQAagBxAEYAcAAyAFEANABQAHoAWgA5ACIALAAiAEIAIgA6AHsAIgBCACIAOgAtADEALgA0ADIAMQAwADgANQA0ADcAMQA1ADIAMAAyADAAMAA0AGUALQAxADQALAAiAEQAIgA6ADEAOAAzAC4ANwAwADAAMQA4ADcAOQA3ADQAOQA1ADAANQA4ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUAfQAsACIARgAiADoAIgBCACIALAAiAEkAIgA6AHQAcgB1AGUAfQB9AH0AXQAsACIAQgAiADoAMQA5ADIAMAAsACIAQwAiADoAMQAwADgAMAB9AA=="
+                                }
+                              }
+                            ]
                           }
                         ]
                       },
@@ -1235,17 +1245,33 @@
                           },
                           {
                             "type": "textnode",
-                            "content": "Click Here To Call"
+                            "content": "Click Here To Call "
                           },
                           {
-                            "tagName": "br",
-                            "void": true
+                            "components": [
+                              {
+                                "tagName": "span",
+                                "attributes": {
+                                  "data-canva-clipboard": "ewAiAGEAIgA6ADUALAAiAGgAIgA6ACIAdwB3AHcALgBjAGEAbgB2AGEALgBjAG8AbQAiACwAIgBjACIAOgAiAEQAQQBIAEMAWABhAEsAVgBUADcAVQAiACwAIgBpACIAOgAiADgAOABJAGUAYgB6AFMAaABrAGMAaABVAGoAWAA2AEkAUQBNAFgAVwA2AEEAIgAsACIAYgAiADoAMQA3ADcANQAxADcANAA5ADMAOAAwADIAOQAsACIAagAiADoAWwB7AH0AXQAsACIAbQAiADoAewB9ACwAIgBBAD8AIgA6ACIAQgAiACwAIgBBACIAOgBbAHsAIgBBACIAOgA3ADgAMwAuADQAMwA5ADIANAA1ADEAOAAzADYANAA3ADkALAAiAEIAIgA6ADMAMQA4AC4ANwAyADcAMAA1ADAAMQA4ADMANQA5ADgANAAsACIARAAiADoAMQA4ADMALgA3ADAAMAAxADgANwA5ADcANAA5ADUAMAA2ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUALAAiAEEAPwAiADoAIgBJACIALAAiAF8AIgA6ACIATABCADMAbAA0AFIAWABIAGQAZAA2AGQAcwBLAGYAUAAiACwAIgBhACIAOgB7ACIAQQAiADoAZgBhAGwAcwBlACwAIgBJACIAOgB7ACIAQQAiADoAIgBWAEEARABuADgAYgB5AHMAbABrAG8AIgAsACIATQAiADoAIgBWAEIAbQBWAHQAagBxAEYAcAAyAFEANABQAHoAWgA5ACIALAAiAEIAIgA6AHsAIgBCACIAOgAtADEALgA0ADIAMQAwADgANQA0ADcAMQA1ADIAMAAyADAAMAA0AGUALQAxADQALAAiAEQAIgA6ADEAOAAzAC4ANwAwADAAMQA4ADcAOQA3ADQAOQA1ADAANQA4ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUAfQAsACIARgAiADoAIgBCACIALAAiAEkAIgA6AHQAcgB1AGUAfQB9AH0AXQAsACIAQgAiADoAMQA5ADIAMAAsACIAQwAiADoAMQAwADgAMAB9AA=="
+                                }
+                              }
+                            ]
                           },
                           {
                             "tagName": "span",
                             "attributes": {
                               "id": "i4tsd"
                             }
+                          },
+                          {
+                            "components": [
+                              {
+                                "tagName": "span",
+                                "attributes": {
+                                  "data-canva-clipboard": "ewAiAGEAIgA6ADUALAAiAGgAIgA6ACIAdwB3AHcALgBjAGEAbgB2AGEALgBjAG8AbQAiACwAIgBjACIAOgAiAEQAQQBIAEMAWABhAEsAVgBUADcAVQAiACwAIgBpACIAOgAiADgAOABJAGUAYgB6AFMAaABrAGMAaABVAGoAWAA2AEkAUQBNAFgAVwA2AEEAIgAsACIAYgAiADoAMQA3ADcANQAxADcANAA5ADMAOAAwADIAOQAsACIAagAiADoAWwB7AH0AXQAsACIAbQAiADoAewB9ACwAIgBBAD8AIgA6ACIAQgAiACwAIgBBACIAOgBbAHsAIgBBACIAOgA3ADgAMwAuADQAMwA5ADIANAA1ADEAOAAzADYANAA3ADkALAAiAEIAIgA6ADMAMQA4AC4ANwAyADcAMAA1ADAAMQA4ADMANQA5ADgANAAsACIARAAiADoAMQA4ADMALgA3ADAAMAAxADgANwA5ADcANAA5ADUAMAA2ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUALAAiAEEAPwAiADoAIgBJACIALAAiAF8AIgA6ACIATABCADMAbAA0AFIAWABIAGQAZAA2AGQAcwBLAGYAUAAiACwAIgBhACIAOgB7ACIAQQAiADoAZgBhAGwAcwBlACwAIgBJACIAOgB7ACIAQQAiADoAIgBWAEEARABuADgAYgB5AHMAbABrAG8AIgAsACIATQAiADoAIgBWAEIAbQBWAHQAagBxAEYAcAAyAFEANABQAHoAWgA5ACIALAAiAEIAIgA6AHsAIgBCACIAOgAtADEALgA0ADIAMQAwADgANQA0ADcAMQA1ADIAMAAyADAAMAA0AGUALQAxADQALAAiAEQAIgA6ADEAOAAzAC4ANwAwADAAMQA4ADcAOQA3ADQAOQA1ADAANQA4ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUAfQAsACIARgAiADoAIgBCACIALAAiAEkAIgA6AHQAcgB1AGUAfQB9AH0AXQAsACIAQgAiADoAMQA5ADIAMAAsACIAQwAiADoAMQAwADgAMAB9AA=="
+                                }
+                              }
+                            ]
                           }
                         ]
                       }
@@ -1841,8 +1867,14 @@
                             },
                             "components": [
                               {
-                                "type": "textnode",
-                                "content": "Links"
+                                "tagName": "u",
+                                "type": "text",
+                                "components": [
+                                  {
+                                    "type": "textnode",
+                                    "content": "Links"
+                                  }
+                                ]
                               }
                             ]
                           },
@@ -1854,9 +1886,11 @@
                               {
                                 "type": "link",
                                 "attributes": {
-                                  "href": "#",
+                                  "href": "index.html",
                                   "id": "icsmeu"
                                 },
+                                "linkType": "page",
+                                "internalPage": "home",
                                 "components": [
                                   {
                                     "type": "textnode",
@@ -1867,9 +1901,11 @@
                               {
                                 "type": "link",
                                 "attributes": {
-                                  "href": "#",
+                                  "href": "about.html",
                                   "id": "ik5gqx"
                                 },
+                                "linkType": "page",
+                                "internalPage": "page-1775074421813",
                                 "components": [
                                   {
                                     "type": "textnode",
@@ -1880,9 +1916,11 @@
                               {
                                 "type": "link",
                                 "attributes": {
-                                  "href": "#",
+                                  "href": "contact.html",
                                   "id": "illtrl"
                                 },
+                                "linkType": "page",
+                                "internalPage": "page-1775082294032",
                                 "components": [
                                   {
                                     "type": "textnode",
@@ -1910,7 +1948,7 @@
                         "components": [
                           {
                             "type": "textnode",
-                            "content": "© 2025 Brand. All rights reserved."
+                            "content": "© 2025 Sober University LLC. All rights reserved."
                           }
                         ]
                       }
