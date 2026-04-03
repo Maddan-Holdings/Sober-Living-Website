@@ -236,7 +236,7 @@
       ],
       "style": {
         "height": "346px",
-        "width": "418px"
+        "width": "405px"
       }
     },
     {
@@ -803,7 +803,8 @@
         "#ipudd5"
       ],
       "style": {
-        "height": "350px"
+        "height": "350px",
+        "width": "454px"
       }
     },
     {
@@ -1002,6 +1003,18 @@
         "flex-wrap": "wrap",
         "gap": "16px",
         "align-items": "center",
+        "padding": "10px"
+      }
+    },
+    {
+      "selectors": [
+        "#iosokm"
+      ],
+      "style": {
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "gap": "16px",
+        "justify-content": "center",
         "padding": "10px"
       }
     }
@@ -1696,6 +1709,39 @@
                 ]
               },
               {
+                "attributes": {
+                  "id": "iosokm"
+                },
+                "components": [
+                  {
+                    "type": "map",
+                    "resizable": {
+                      "ratioDefault": 1
+                    },
+                    "attributes": {
+                      "frameborder": 0,
+                      "id": "i2c5m"
+                    },
+                    "src": "https://maps.google.com/maps?&q=1342 High St, Bowling Green, Ky 42101, USA&z=15&t=q&output=embed",
+                    "address": "1342 High St, Bowling Green, Ky 42101, USA",
+                    "zoom": "15"
+                  },
+                  {
+                    "type": "map",
+                    "resizable": {
+                      "ratioDefault": 1
+                    },
+                    "attributes": {
+                      "frameborder": 0,
+                      "id": "ipudd5"
+                    },
+                    "src": "https://maps.google.com/maps?&q=1031 Kentucky Street, Kentucky 42101&z=15&t=q&output=embed",
+                    "address": "1031 Kentucky Street, Kentucky 42101",
+                    "zoom": "15"
+                  }
+                ]
+              },
+              {
                 "name": "Row",
                 "droppable": ".gjs-cell",
                 "resizable": {
@@ -1716,99 +1762,7 @@
                 ],
                 "attributes": {
                   "id": "isrf1t"
-                },
-                "components": [
-                  {
-                    "name": "Cell",
-                    "draggable": ".gjs-row",
-                    "stylable-require": [
-                      "flex-basis"
-                    ],
-                    "unstylable": [
-                      "width"
-                    ],
-                    "resizable": {
-                      "tl": 0,
-                      "tc": 0,
-                      "tr": 0,
-                      "cl": 0,
-                      "cr": 1,
-                      "bl": 0,
-                      "br": 0,
-                      "minDim": 1,
-                      "bc": 0,
-                      "currentUnit": 1,
-                      "step": 0.2,
-                      "keyWidth": "flex-basis"
-                    },
-                    "classes": [
-                      {
-                        "name": "gjs-cell",
-                        "private": 1
-                      }
-                    ],
-                    "components": [
-                      {
-                        "type": "map",
-                        "resizable": {
-                          "ratioDefault": 1
-                        },
-                        "attributes": {
-                          "frameborder": 0,
-                          "id": "i2c5m"
-                        },
-                        "src": "https://maps.google.com/maps?&q=1342 High St, Bowling Green, Ky 42101, USA&z=15&t=q&output=embed",
-                        "address": "1342 High St, Bowling Green, Ky 42101, USA",
-                        "zoom": "15"
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Cell",
-                    "draggable": ".gjs-row",
-                    "stylable-require": [
-                      "flex-basis"
-                    ],
-                    "unstylable": [
-                      "width"
-                    ],
-                    "resizable": {
-                      "tl": 0,
-                      "tc": 0,
-                      "tr": 0,
-                      "cl": 0,
-                      "cr": 1,
-                      "bl": 0,
-                      "br": 0,
-                      "minDim": 1,
-                      "bc": 0,
-                      "currentUnit": 1,
-                      "step": 0.2,
-                      "keyWidth": "flex-basis"
-                    },
-                    "classes": [
-                      {
-                        "name": "gjs-cell",
-                        "private": 1
-                      }
-                    ],
-                    "components": [
-                      {
-                        "type": "map",
-                        "resizable": {
-                          "ratioDefault": 1
-                        },
-                        "attributes": {
-                          "frameborder": 0,
-                          "id": "ipudd5"
-                        },
-                        "src": "https://maps.google.com/maps?&q=1031 Kentucky Street, Kentucky 42101&z=15&t=q&output=embed",
-                        "address": "1031 Kentucky Street, Kentucky 42101",
-                        "zoom": "15"
-                      }
-                    ]
-                  }
-                ]
+                }
               },
               {
                 "tagName": "footer",
@@ -2093,19 +2047,6 @@
                       {
                         "type": "textnode",
                         "content": "About Sober U"
-                      }
-                    ]
-                  },
-                  {
-                    "tagName": "p",
-                    "type": "text",
-                    "attributes": {
-                      "id": "i6akeg"
-                    },
-                    "components": [
-                      {
-                        "type": "textnode",
-                        "content": "Sober University first opened under the name Clearview Sober Living in 2022."
                       }
                     ]
                   }
