@@ -140,6 +140,14 @@
           </div>
 
           <div class="menu-section">
+            <div class="menu-section-title">Version History</div>
+            <div class="menu-row">
+              <button type="button" class="menu-btn" id="btn-save-version"><i class="fa-solid fa-bookmark"></i> Save Version</button>
+              <button type="button" class="menu-btn" id="btn-open-versions"><i class="fa-solid fa-clock-rotate-left"></i> View History</button>
+            </div>
+          </div>
+
+          <div class="menu-section">
             <div class="menu-section-title">Sync</div>
             <div class="menu-row">
               <button type="button" class="menu-btn" id="btn-sync-github"><i class="fa-solid fa-cloud-arrow-down"></i> Load from GitHub</button>
@@ -246,6 +254,40 @@
     </div>
   </div>
 
+  <div id="versions-modal" class="modal-overlay">
+    <div class="modal-box" style="width:640px;max-height:85vh;display:flex;flex-direction:column;padding:0;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #333;flex-shrink:0">
+        <div class="modal-title" style="margin:0"><i class="fa-solid fa-clock-rotate-left"></i> Version History</div>
+        <div style="display:flex;gap:6px">
+          <button type="button" class="modal-btn modal-btn-secondary" id="btn-save-version-modal"><i class="fa-solid fa-bookmark"></i> Save Current</button>
+          <button type="button" class="modal-close" id="btn-close-versions">Close</button>
+        </div>
+      </div>
+      <div id="versions-list" style="flex:1;overflow-y:auto;padding:12px 18px"></div>
+      <div id="versions-empty" style="display:none;padding:40px 18px;text-align:center;color:#666;font-size:14px">
+        <i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:12px;display:block;opacity:.4"></i>
+        No saved versions yet.<br>Click "Save Current" or versions are created automatically before each publish.
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .version-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:8px;margin-bottom:8px;transition:border-color .15s}
+    .version-item:hover{border-color:#4f46e5}
+    .version-badge{flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+    .version-badge.auto{background:#1e3a5f;color:#60a5fa}
+    .version-badge.manual{background:#3b1f5e;color:#c084fc}
+    .version-info{flex:1;min-width:0}
+    .version-name{font-size:13px;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .version-meta{font-size:11px;color:#777;margin-top:2px}
+    .version-pages{font-size:11px;color:#666;margin-top:1px}
+    .version-actions{display:flex;gap:4px;flex-shrink:0}
+    .version-actions button{background:#1e1e1e;color:#aaa;border:1px solid #444;padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer;white-space:nowrap}
+    .version-actions button:hover{background:#333;color:#fff}
+    .version-actions .restore-btn:hover{background:#4f46e5;border-color:#4f46e5;color:#fff}
+    .version-actions .delete-btn:hover{background:#dc2626;border-color:#dc2626;color:#fff}
+  </style>
+
   <script src="https://unpkg.com/grapesjs"></script>
   <script src="https://unpkg.com/grapesjs-blocks-basic"></script>
   <script src="https://unpkg.com/grapesjs-plugin-forms"></script>
@@ -274,8 +316,11 @@
   // =============================================
   var TOKEN_KEY = 'gjs-builder-token';
   var PROJECT_KEY = 'gjs-project-v4';
+  var VERSIONS_KEY = 'gjs-versions';
+  var VERSIONS_FILE = 'builder-versions.json';
   var DATA_FILE = 'builder-data.json';
   var BRANCH = 'main';
+  var MAX_VERSIONS = 30;
   var statusEl = document.getElementById('status');
   var loadingOverlay = document.getElementById('loading-overlay');
   var loadingText = document.getElementById('loading-text');
@@ -766,6 +811,10 @@
     var owner = repoInfo.owner, repo = repoInfo.repo, branch = repoInfo.branch;
     if (!owner || !repo) { setStatus('Open from your GitHub Pages URL to auto-detect repo.'); return Promise.resolve(); }
     if (!token) { setStatus('Save your GitHub token in Menu \u2192 Settings first.'); return Promise.resolve(); }
+
+    var ts = new Date().toLocaleString();
+    createVersion('Pre-publish \u00b7 ' + ts, 'auto');
+
     var pages = collectAllPages();
     setStatus('Publishing ' + pages.length + ' page(s)\u2026');
     var chain = Promise.resolve();
@@ -778,8 +827,12 @@
       var projectJson = JSON.stringify(getProjectData(), null, 2);
       return uploadFile(owner, repo, branch, DATA_FILE, projectJson, token);
     });
+    chain = chain.then(function () {
+      setStatus('Saving version history\u2026');
+      return saveVersionsToGitHub();
+    });
     return chain.then(function () {
-      setStatus('\u2713 Published ' + pages.length + ' page(s) + project data saved!');
+      setStatus('\u2713 Published ' + pages.length + ' page(s) + version saved!');
     }).catch(function (err) {
       setStatus('Error: ' + err.message);
       console.error(err);
@@ -838,6 +891,147 @@
       }
       return false;
     });
+  }
+
+  // =============================================
+  // VERSION CONTROL
+  // =============================================
+  function getVersions() {
+    try {
+      return JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
+    } catch (e) { return []; }
+  }
+
+  function saveVersionsList(versions) {
+    localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+  }
+
+  function createVersion(label, type) {
+    var data = editor.getProjectData();
+    var pages = editor.Pages.getAll();
+    var pageNames = pages.map(function (p, i) { return p.get('name') || 'Page ' + (i + 1); });
+    var version = {
+      id: 'v-' + Date.now(),
+      label: label || 'Version',
+      type: type || 'manual',
+      timestamp: new Date().toISOString(),
+      pageCount: pages.length,
+      pageNames: pageNames,
+      data: data,
+    };
+    var versions = getVersions();
+    versions.unshift(version);
+    if (versions.length > MAX_VERSIONS) versions = versions.slice(0, MAX_VERSIONS);
+    saveVersionsList(versions);
+    return version;
+  }
+
+  function restoreVersion(versionId) {
+    var versions = getVersions();
+    var version = null;
+    for (var i = 0; i < versions.length; i++) {
+      if (versions[i].id === versionId) { version = versions[i]; break; }
+    }
+    if (!version || !version.data) return false;
+    try {
+      editor.loadProjectData(version.data);
+      refreshPages();
+      editor.store();
+      return true;
+    } catch (e) {
+      console.error('Restore failed:', e);
+      return false;
+    }
+  }
+
+  function deleteVersion(versionId) {
+    var versions = getVersions();
+    saveVersionsList(versions.filter(function (v) { return v.id !== versionId; }));
+  }
+
+  function formatTimestamp(iso) {
+    try {
+      var d = new Date(iso);
+      var now = new Date();
+      var diff = now - d;
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return iso; }
+  }
+
+  function renderVersionsList() {
+    var versions = getVersions();
+    var list = document.getElementById('versions-list');
+    var empty = document.getElementById('versions-empty');
+    if (!versions.length) {
+      list.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    list.style.display = 'block';
+    empty.style.display = 'none';
+    list.innerHTML = versions.map(function (v) {
+      var icon = v.type === 'auto' ? 'fa-solid fa-rotate' : 'fa-solid fa-bookmark';
+      var badgeClass = v.type === 'auto' ? 'auto' : 'manual';
+      var pages = v.pageNames ? v.pageNames.join(', ') : v.pageCount + ' page(s)';
+      return '<div class="version-item" data-vid="' + v.id + '">' +
+        '<div class="version-badge ' + badgeClass + '"><i class="' + icon + '"></i></div>' +
+        '<div class="version-info">' +
+          '<div class="version-name">' + escapeHtml(v.label) + '</div>' +
+          '<div class="version-meta">' + formatTimestamp(v.timestamp) + ' \u00b7 ' + (v.type === 'auto' ? 'Auto-saved' : 'Manual') + '</div>' +
+          '<div class="version-pages">' + escapeHtml(pages) + '</div>' +
+        '</div>' +
+        '<div class="version-actions">' +
+          '<button class="restore-btn" data-restore="' + v.id + '"><i class="fa-solid fa-arrow-rotate-left"></i> Restore</button>' +
+          '<button class="delete-btn" data-delete="' + v.id + '"><i class="fa-solid fa-trash"></i></button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function saveVersionsToGitHub() {
+    var token = localStorage.getItem(TOKEN_KEY) || '';
+    var owner = repoInfo.owner, repo = repoInfo.repo, branch = repoInfo.branch;
+    if (!owner || !repo || !token) return Promise.resolve();
+    var versions = getVersions();
+    var slim = versions.map(function (v) {
+      return { id: v.id, label: v.label, type: v.type, timestamp: v.timestamp, pageCount: v.pageCount, pageNames: v.pageNames, data: v.data };
+    });
+    var json = JSON.stringify(slim);
+    return uploadFile(owner, repo, branch, VERSIONS_FILE, json, token).catch(function (e) {
+      console.error('Failed to save versions to GitHub:', e);
+    });
+  }
+
+  function loadVersionsFromGitHub() {
+    var owner = repoInfo.owner, repo = repoInfo.repo;
+    if (!owner || !repo) return Promise.resolve();
+    var url = 'https://' + owner + '.github.io/' + repo + '/' + VERSIONS_FILE + '?t=' + Date.now();
+    return fetch(url).then(function (res) {
+      if (!res.ok) return;
+      return res.json().then(function (remote) {
+        if (!Array.isArray(remote) || !remote.length) return;
+        var local = getVersions();
+        var localIds = {};
+        local.forEach(function (v) { localIds[v.id] = true; });
+        var merged = local.slice();
+        remote.forEach(function (v) {
+          if (!localIds[v.id]) merged.push(v);
+        });
+        merged.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+        if (merged.length > MAX_VERSIONS) merged = merged.slice(0, MAX_VERSIONS);
+        saveVersionsList(merged);
+      });
+    }).catch(function () {});
   }
 
   // =============================================
@@ -907,6 +1101,10 @@
   }
 
   function initEditor() {
+    if (repoInfo.owner && repoInfo.repo) {
+      loadVersionsFromGitHub();
+    }
+
     if (hasLocalProject()) {
       refreshPages();
       setStatus('Loaded from local save.');
@@ -1155,6 +1353,70 @@
     }
     if (!confirm('Load project from GitHub? This will replace your current work.')) return;
     syncFromGitHub(true);
+  });
+
+  // =============================================
+  // UI: VERSION CONTROL
+  // =============================================
+  function openVersionsModal() {
+    menuDropdown.classList.remove('open');
+    renderVersionsList();
+    document.getElementById('versions-modal').classList.add('open');
+  }
+
+  function promptSaveVersion() {
+    menuDropdown.classList.remove('open');
+    var label = prompt('Version name:', 'Saved \u00b7 ' + new Date().toLocaleString());
+    if (!label) return;
+    createVersion(label, 'manual');
+    setStatus('Version saved: ' + label);
+    renderVersionsList();
+  }
+
+  document.getElementById('btn-save-version').addEventListener('click', promptSaveVersion);
+  document.getElementById('btn-open-versions').addEventListener('click', openVersionsModal);
+  document.getElementById('btn-save-version-modal').addEventListener('click', function () {
+    var label = prompt('Version name:', 'Saved \u00b7 ' + new Date().toLocaleString());
+    if (!label) return;
+    createVersion(label, 'manual');
+    setStatus('Version saved: ' + label);
+    renderVersionsList();
+  });
+  document.getElementById('btn-close-versions').addEventListener('click', function () {
+    document.getElementById('versions-modal').classList.remove('open');
+  });
+
+  document.getElementById('versions-list').addEventListener('click', function (e) {
+    var restoreBtn = e.target.closest('[data-restore]');
+    var deleteBtn = e.target.closest('[data-delete]');
+
+    if (restoreBtn) {
+      var vid = restoreBtn.dataset.restore;
+      var versions = getVersions();
+      var version = null;
+      for (var i = 0; i < versions.length; i++) {
+        if (versions[i].id === vid) { version = versions[i]; break; }
+      }
+      if (!version) return;
+      if (!confirm('Restore "' + version.label + '"?\n\nYour current work will be saved as an auto-version first.')) return;
+
+      createVersion('Before restore \u00b7 ' + new Date().toLocaleString(), 'auto');
+
+      if (restoreVersion(vid)) {
+        setStatus('\u2713 Restored: ' + version.label);
+        document.getElementById('versions-modal').classList.remove('open');
+      } else {
+        setStatus('Restore failed.');
+      }
+    }
+
+    if (deleteBtn) {
+      var dvid = deleteBtn.dataset.delete;
+      if (!confirm('Delete this version permanently?')) return;
+      deleteVersion(dvid);
+      renderVersionsList();
+      setStatus('Version deleted.');
+    }
   });
 
   // =============================================
