@@ -767,9 +767,40 @@
     });
   }
 
+  function sanitizeExportHtml(raw) {
+    var clean = raw;
+    clean = clean.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '');
+    clean = clean.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '');
+    clean = clean.replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '');
+    clean = clean.replace(/<meta[^>]*\/?>/gi, '');
+    clean = clean.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '');
+    clean = clean.replace(/<link[^>]*\/?>/gi, '');
+    clean = clean.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+    clean = clean.replace(/<!doctype[^>]*>/gi, '');
+    return clean.trim();
+  }
+
+  function deduplicateCss(css) {
+    var seen = {};
+    var rules = [];
+    var parts = css.split('}');
+    for (var i = 0; i < parts.length; i++) {
+      var rule = parts[i].trim();
+      if (!rule) continue;
+      var full = rule + '}';
+      if (!seen[full]) {
+        seen[full] = true;
+        rules.push(full);
+      }
+    }
+    return rules.join('\n');
+  }
+
   function getExportHtml(title) {
-    var html = editor.getHtml();
-    var css = editor.getCss();
+    var rawHtml = editor.getHtml();
+    var rawCss = editor.getCss();
+    var html = sanitizeExportHtml(rawHtml);
+    var css = deduplicateCss(rawCss);
     return '<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + (title || 'Site') + '</title>\n  <link rel="preconnect" href="https://fonts.googleapis.com">\n  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n  <style>\n' + css + '\n  </style>\n</head>\n<body>\n' + html + '\n</body>\n</html>';
   }
 
