@@ -132,25 +132,17 @@
       }
     },
     {
-      "selectors": [
-        "#i18ijf"
-      ],
+      "selectors": [],
+      "selectorsAdd": "*",
       "style": {
-        "min-height": "50px",
-        "padding": "10px",
-        "background": "#f5f5f5",
-        "border-radius": "4px"
+        "box-sizing": "border-box"
       }
     },
     {
-      "selectors": [
-        "#iwkf02"
-      ],
+      "selectors": [],
+      "selectorsAdd": "body",
       "style": {
-        "min-height": "50px",
-        "padding": "10px",
-        "background": "#f5f5f5",
-        "border-radius": "4px"
+        "margin": "0"
       }
     },
     {
@@ -1464,35 +1456,12 @@
                 },
                 "components": [
                   {
-                    "attributes": {
-                      "id": "i18ijf"
-                    },
-                    "components": [
-                      {
-                        "tagName": "br",
-                        "void": true
-                      },
-                      {
-                        "tagName": "br",
-                        "void": true
-                      },
-                      {
-                        "type": "comment",
-                        "content": "End of Tawk.to Script"
-                      }
-                    ]
+                    "type": "comment",
+                    "content": "Start of Tawk.to Script"
                   },
                   {
-                    "type": "text",
-                    "attributes": {
-                      "id": "iwkf02"
-                    },
-                    "components": [
-                      {
-                        "type": "textnode",
-                        "content": "Row 2"
-                      }
-                    ]
+                    "type": "comment",
+                    "content": "End of Tawk.to Script"
                   }
                 ]
               }
