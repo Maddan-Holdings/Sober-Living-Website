@@ -506,6 +506,31 @@
   // =============================================
   // CUSTOM BLOCKS
   // =============================================
+  var dc = editor.DomComponents;
+  dc.addType('html-embed', {
+    model: {
+      defaults: {
+        name: 'HTML Embed',
+        tagName: 'div',
+        droppable: false,
+        editable: false,
+        highlightable: true,
+        attributes: { class: 'html-embed-component' },
+        embedHtml: '<div style="padding:16px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;color:#475569;text-align:center;">Paste chat widget HTML here</div>',
+        traits: [
+          { type: 'textarea', name: 'embedHtml', label: 'Embed HTML', changeProp: 1 },
+        ],
+      },
+      init: function () {
+        this.on('change:embedHtml', this.handleEmbedHtmlChange);
+        this.handleEmbedHtmlChange();
+      },
+      handleEmbedHtmlChange: function () {
+        this.components(this.get('embedHtml') || '');
+      },
+    },
+  });
+
   var bm = editor.BlockManager;
 
   bm.add('section', {
@@ -566,6 +591,8 @@
     label: '<i class="fa-solid fa-code"></i><div>HTML Embed</div>',
     category: 'Elements',
     content: {
+      type: 'html-embed',
+      embedHtml: '<div style="padding:16px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;color:#475569;text-align:center;">Paste chat widget HTML here</div>',
       type: 'custom-code',
       content: '<div style="padding:16px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;color:#475569;text-align:center;">Paste chat widget HTML here</div>',
     },
@@ -649,7 +676,6 @@
     return '#';
   }
 
-  var dc = editor.DomComponents;
   var linkType = dc.getType('link');
   if (linkType) {
     dc.addType('link', {
