@@ -20,6 +20,20 @@
   ],
   "styles": [
     {
+      "selectors": [],
+      "selectorsAdd": "*",
+      "style": {
+        "box-sizing": "border-box"
+      }
+    },
+    {
+      "selectors": [],
+      "selectorsAdd": "body",
+      "style": {
+        "margin": "0"
+      }
+    },
+    {
       "selectors": [
         {
           "name": "gjs-row",
@@ -33,19 +47,6 @@
         "flex-wrap": "nowrap",
         "padding": "10px"
       }
-    },
-    {
-      "selectors": [
-        {
-          "name": "gjs-row",
-          "private": 1
-        }
-      ],
-      "style": {
-        "flex-wrap": "wrap"
-      },
-      "mediaText": "(max-width: 768px)",
-      "atRuleType": "media"
     },
     {
       "selectors": [
@@ -332,7 +333,6 @@
         "padding": "100px 20px",
         "text-align": "center",
         "color": "#fff",
-        "__background-type": "unset",
         "background-image": "unset",
         "background-repeat": "unset",
         "background-position": "unset",
@@ -404,6 +404,19 @@
         "overflow-y": "hidden",
         "overflow-x": "hidden"
       }
+    },
+    {
+      "selectors": [
+        {
+          "name": "gjs-row",
+          "private": 1
+        }
+      ],
+      "style": {
+        "flex-wrap": "wrap"
+      },
+      "mediaText": "(max-width: 768px)",
+      "atRuleType": "media"
     }
   ],
   "pages": [
@@ -529,7 +542,6 @@
                     "components": [
                       {
                         "tagName": "h1",
-                        "type": "text",
                         "attributes": {
                           "id": "i6jedg"
                         },
@@ -552,59 +564,58 @@
                       },
                       {
                         "tagName": "p",
-                        "type": "text",
                         "attributes": {
                           "id": "ie9yii"
+                        }
+                      },
+                      {
+                        "tagName": "p",
+                        "attributes": {
+                          "id": "igvg"
+                        }
+                      },
+                      {
+                        "tagName": "span",
+                        "type": "text",
+                        "attributes": {
+                          "id": "iy168v"
                         },
                         "components": [
                           {
-                            "tagName": "p",
-                            "type": "text",
-                            "attributes": {
-                              "id": "igvg"
-                            }
-                          },
+                            "type": "textnode",
+                            "content": "Mens Sober Living in Bowling Green, Ky "
+                          }
+                        ]
+                      },
+                      {
+                        "attributes": {
+                          "id": "i9rwvk"
+                        },
+                        "components": [
                           {
                             "tagName": "span",
-                            "type": "text",
                             "attributes": {
-                              "id": "iy168v"
-                            },
-                            "components": [
-                              {
-                                "type": "textnode",
-                                "content": "Mens Sober Living in Bowling Green, Ky "
-                              }
-                            ]
-                          },
-                          {
-                            "attributes": {
-                              "id": "i9rwvk"
-                            },
-                            "components": [
-                              {
-                                "tagName": "span",
-                                "attributes": {
-                                  "data-canva-clipboard": "ewAiAGEAIgA6ADUALAAiAGgAIgA6ACIAdwB3AHcALgBjAGEAbgB2AGEALgBjAG8AbQAiACwAIgBjACIAOgAiAEQAQQBIAEMAWABhAEsAVgBUADcAVQAiACwAIgBpACIAOgAiADgAOABJAGUAYgB6AFMAaABrAGMAaABVAGoAWAA2AEkAUQBNAFgAVwA2AEEAIgAsACIAYgAiADoAMQA3ADcANQAxADcANAA5ADMAOAAwADIAOQAsACIAagAiADoAWwB7AH0AXQAsACIAbQAiADoAewB9ACwAIgBBAD8AIgA6ACIAQgAiACwAIgBBACIAOgBbAHsAIgBBACIAOgA3ADgAMwAuADQAMwA5ADIANAA1ADEAOAAzADYANAA3ADkALAAiAEIAIgA6ADMAMQA4AC4ANwAyADcAMAA1ADAAMQA4ADMANQA5ADgANAAsACIARAAiADoAMQA4ADMALgA3ADAAMAAxADgANwA5ADcANAA5ADUAMAA2ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUALAAiAEEAPwAiADoAIgBJACIALAAiAF8AIgA6ACIATABCADMAbAA0AFIAWABIAGQAZAA2AGQAcwBLAGYAUAAiACwAIgBhACIAOgB7ACIAQQAiADoAZgBhAGwAcwBlACwAIgBJACIAOgB7ACIAQQAiADoAIgBWAEEARABuADgAYgB5AHMAbABrAG8AIgAsACIATQAiADoAIgBWAEIAbQBWAHQAagBxAEYAcAAyAFEANABQAHoAWgA5ACIALAAiAEIAIgA6AHsAIgBCACIAOgAtADEALgA0ADIAMQAwADgANQA0ADcAMQA1ADIAMAAyADAAMAA0AGUALQAxADQALAAiAEQAIgA6ADEAOAAzAC4ANwAwADAAMQA4ADcAOQA3ADQAOQA1ADAANQA4ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUAfQAsACIARgAiADoAIgBCACIALAAiAEkAIgA6AHQAcgB1AGUAfQB9AH0AXQAsACIAQgAiADoAMQA5ADIAMAAsACIAQwAiADoAMQAwADgAMAB9AA=="
-                                }
-                              }
-                            ]
-                          },
-                          {
-                            "tagName": "p",
-                            "attributes": {
-                              "id": "if5b0q"
-                            }
-                          },
-                          {
-                            "type": "link",
-                            "attributes": {
-                              "href": "tel:+12703033515",
-                              "id": "icqf",
-                              "title": "call button"
+                              "data-canva-clipboard": "ewAiAGEAIgA6ADUALAAiAGgAIgA6ACIAdwB3AHcALgBjAGEAbgB2AGEALgBjAG8AbQAiACwAIgBjACIAOgAiAEQAQQBIAEMAWABhAEsAVgBUADcAVQAiACwAIgBpACIAOgAiADgAOABJAGUAYgB6AFMAaABrAGMAaABVAGoAWAA2AEkAUQBNAFgAVwA2AEEAIgAsACIAYgAiADoAMQA3ADcANQAxADcANAA5ADMAOAAwADIAOQAsACIAagAiADoAWwB7AH0AXQAsACIAbQAiADoAewB9ACwAIgBBAD8AIgA6ACIAQgAiACwAIgBBACIAOgBbAHsAIgBBACIAOgA3ADgAMwAuADQAMwA5ADIANAA1ADEAOAAzADYANAA3ADkALAAiAEIAIgA6ADMAMQA4AC4ANwAyADcAMAA1ADAAMQA4ADMANQA5ADgANAAsACIARAAiADoAMQA4ADMALgA3ADAAMAAxADgANwA5ADcANAA5ADUAMAA2ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUALAAiAEEAPwAiADoAIgBJACIALAAiAF8AIgA6ACIATABCADMAbAA0AFIAWABIAGQAZAA2AGQAcwBLAGYAUAAiACwAIgBhACIAOgB7ACIAQQAiADoAZgBhAGwAcwBlACwAIgBJACIAOgB7ACIAQQAiADoAIgBWAEEARABuADgAYgB5AHMAbABrAG8AIgAsACIATQAiADoAIgBWAEIAbQBWAHQAagBxAEYAcAAyAFEANABQAHoAWgA5ACIALAAiAEIAIgA6AHsAIgBCACIAOgAtADEALgA0ADIAMQAwADgANQA0ADcAMQA1ADIAMAAyADAAMAA0AGUALQAxADQALAAiAEQAIgA6ADEAOAAzAC4ANwAwADAAMQA4ADcAOQA3ADQAOQA1ADAANQA4ACwAIgBDACIAOgAxADUANwAuADkAOAAyADEANgAxADYANQA4ADQANQA3ADUAfQAsACIARgAiADoAIgBCACIALAAiAEkAIgA6AHQAcgB1AGUAfQB9AH0AXQAsACIAQgAiADoAMQA5ADIAMAAsACIAQwAiADoAMQAwADgAMAB9AA=="
                             }
                           }
                         ]
+                      },
+                      {
+                        "tagName": "p",
+                        "attributes": {
+                          "id": "if5b0q"
+                        }
+                      },
+                      {
+                        "type": "link",
+                        "attributes": {
+                          "href": "tel:+12703033515",
+                          "id": "icqf",
+                          "title": "call button"
+                        }
+                      },
+                      {
+                        "tagName": "p"
                       },
                       {
                         "type": "link",
@@ -632,18 +643,6 @@
                 ]
               },
               {
-                "name": "Row",
-                "droppable": ".gjs-cell",
-                "resizable": {
-                  "tl": 0,
-                  "tc": 0,
-                  "tr": 0,
-                  "cl": 0,
-                  "cr": 0,
-                  "bl": 0,
-                  "br": 0,
-                  "minDim": 1
-                },
                 "classes": [
                   {
                     "name": "gjs-row",
@@ -655,28 +654,6 @@
                 },
                 "components": [
                   {
-                    "name": "Cell",
-                    "draggable": ".gjs-row",
-                    "stylable-require": [
-                      "flex-basis"
-                    ],
-                    "unstylable": [
-                      "width"
-                    ],
-                    "resizable": {
-                      "tl": 0,
-                      "tc": 0,
-                      "tr": 0,
-                      "cl": 0,
-                      "cr": 1,
-                      "bl": 0,
-                      "br": 0,
-                      "minDim": 1,
-                      "bc": 0,
-                      "currentUnit": 1,
-                      "step": 0.2,
-                      "keyWidth": "flex-basis"
-                    },
                     "classes": [
                       {
                         "name": "gjs-cell",
@@ -839,6 +816,52 @@
                                     ]
                                   }
                                 ]
+                              }
+                            ]
+                          },
+                          {
+                            "attributes": {
+                              "id": "idff6x"
+                            },
+                            "components": [
+                              {
+                                "type": "text",
+                                "attributes": {
+                                  "id": "i55xlw"
+                                },
+                                "components": [
+                                  {
+                                    "type": "textnode",
+                                    "content": "Paste chat widget HTML here"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "attributes": {
+                              "id": "iizxj1"
+                            },
+                            "components": [
+                              {
+                                "type": "text",
+                                "attributes": {
+                                  "id": "it8vu7"
+                                },
+                                "components": [
+                                  {
+                                    "type": "textnode",
+                                    "content": "Paste chat widget HTML here"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "comment",
+                                "content": "Start of Tawk.to Script"
+                              },
+                              {
+                                "type": "comment",
+                                "content": "End of Tawk.to Script"
                               }
                             ]
                           }
@@ -1249,46 +1272,6 @@
             "attributes": {
               "id": "ityt58"
             },
-            "components": [
-              {
-                "attributes": {
-                  "id": "imr6dc-2"
-                },
-                "components": [
-                  {
-                    "attributes": {
-                      "id": "i18ijf-2"
-                    },
-                    "components": [
-                      {
-                        "tagName": "br",
-                        "void": true
-                      },
-                      {
-                        "tagName": "br",
-                        "void": true
-                      },
-                      {
-                        "type": "comment",
-                        "content": "End of Tawk.to Script"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "text",
-                    "attributes": {
-                      "id": "iwkf02-2"
-                    },
-                    "components": [
-                      {
-                        "type": "textnode",
-                        "content": "Row 2"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
             "head": {
               "type": "head"
             },
