@@ -388,7 +388,8 @@
         "#iy168v"
       ],
       "style": {
-        "font-size": "25px"
+        "font-size": "25px",
+        "color": "#000000"
       }
     },
     {
@@ -417,6 +418,32 @@
       },
       "mediaText": "(max-width: 768px)",
       "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#ivx6f"
+      ],
+      "style": {
+        "padding": "16px",
+        "border": "1px dashed #94a3b8",
+        "border-radius": "8px",
+        "background": "#f8fafc",
+        "color": "#475569",
+        "text-align": "center"
+      }
+    },
+    {
+      "selectors": [
+        "#icd7nn"
+      ],
+      "style": {
+        "padding": "16px",
+        "border": "1px dashed #94a3b8",
+        "border-radius": "8px",
+        "background": "#f8fafc",
+        "color": "black",
+        "text-align": "center"
+      }
     }
   ],
   "pages": [
@@ -639,6 +666,39 @@
                         ]
                       }
                     ]
+                  },
+                  {
+                    "type": "html-embed",
+                    "classes": [
+                      "html-embed-component"
+                    ],
+                    "attributes": {}
+                  },
+                  {
+                    "type": "text",
+                    "attributes": {
+                      "id": "icd7nn"
+                    },
+                    "components": [
+                      {
+                        "tagName": "br",
+                        "void": true
+                      },
+                      {
+                        "tagName": "span",
+                        "attributes": {
+                          "id": "itlrsj"
+                        }
+                      },
+                      {
+                        "tagName": "br",
+                        "void": true
+                      },
+                      {
+                        "type": "comment",
+                        "content": "End of Tawk.to Script"
+                      }
+                    ]
                   }
                 ]
               },
@@ -820,14 +880,16 @@
                             ]
                           },
                           {
-                            "attributes": {
-                              "id": "idff6x"
-                            },
+                            "type": "html-embed",
+                            "classes": [
+                              "html-embed-component"
+                            ],
+                            "attributes": {},
                             "components": [
                               {
                                 "type": "text",
                                 "attributes": {
-                                  "id": "i55xlw"
+                                  "id": "ivx6f"
                                 },
                                 "components": [
                                   {
@@ -835,33 +897,6 @@
                                     "content": "Paste chat widget HTML here"
                                   }
                                 ]
-                              }
-                            ]
-                          },
-                          {
-                            "attributes": {
-                              "id": "iizxj1"
-                            },
-                            "components": [
-                              {
-                                "type": "text",
-                                "attributes": {
-                                  "id": "it8vu7"
-                                },
-                                "components": [
-                                  {
-                                    "type": "textnode",
-                                    "content": "Paste chat widget HTML here"
-                                  }
-                                ]
-                              },
-                              {
-                                "type": "comment",
-                                "content": "Start of Tawk.to Script"
-                              },
-                              {
-                                "type": "comment",
-                                "content": "End of Tawk.to Script"
                               }
                             ]
                           }
