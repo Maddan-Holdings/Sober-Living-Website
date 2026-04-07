@@ -469,6 +469,14 @@
       pages: [{ id: 'home', name: 'Home', slug: 'home' }],
     },
 
+    parser: {
+      optionsHtml: {
+        allowScripts: true,
+        allowUnsafeAttr: true,
+        allowUnsafeAttrValue: true,
+      },
+    },
+
     plugins: [
       'gjs-blocks-basic',
       'gjs-plugin-forms',
@@ -539,7 +547,21 @@
     return s.indexOf('Paste chat widget HTML here') !== -1;
   }
 
+  function htmlEmbedAttrsToString(attrs) {
+    if (!attrs || typeof attrs !== 'object') return '';
+    var parts = [];
+    Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v == null || v === '') return;
+      parts.push(k + '="' + String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"');
+    });
+    return parts.length ? ' ' + parts.join(' ') : '';
+  }
+
   var dc = editor.DomComponents;
+  var defaultCmpType = dc.getType('default');
+  var defaultModelProto = defaultCmpType && defaultCmpType.model && defaultCmpType.model.prototype;
+
   dc.addType('html-embed', {
     model: {
       defaults: {
@@ -555,7 +577,7 @@
             type: 'textarea',
             name: 'embedHtml',
             label: 'Embed HTML (paste below)',
-            placeholder: 'Paste your HTML here. This box starts empty.',
+            placeholder: 'Paste widget/snippet HTML (including script tags). Shown on the live site after publish.',
             changeProp: true,
           },
         ],
@@ -579,6 +601,18 @@
       },
       handleEmbedHtmlChange: function () {
         this.components(this.get('embedHtml') || '');
+      },
+      toHTML: function (opts) {
+        var inner = String(this.get('embedHtml') || '').trim();
+        if (!inner) {
+          return defaultModelProto && defaultModelProto.toHTML
+            ? defaultModelProto.toHTML.call(this, opts)
+            : '<div class="html-embed-component"></div>';
+        }
+        var tag = this.get('tagName') || 'div';
+        var attrs = this.getAttrToHTML ? this.getAttrToHTML(opts || {}) : (this.get('attributes') || {});
+        var attrStr = htmlEmbedAttrsToString(attrs);
+        return '<' + tag + attrStr + '>' + inner + '</' + tag + '>';
       },
     },
   });
