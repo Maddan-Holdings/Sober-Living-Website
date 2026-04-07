@@ -523,11 +523,16 @@
             name: 'embedHtml',
             label: 'Embed HTML',
             placeholder: 'Paste HTML, scripts, or third-party embed snippets here',
-            changeProp: 1,
+            changeProp: true,
           },
         ],
       },
       init: function () {
+        var existing = this.get('embedHtml');
+        if ((existing == null || existing === '') && this.components().length) {
+          var inner = this.components().map(function (c) { return c.toHTML(); }).join('');
+          if (inner) this.set('embedHtml', inner);
+        }
         this.on('change:embedHtml', this.handleEmbedHtmlChange);
         this.handleEmbedHtmlChange();
       },
@@ -726,8 +731,18 @@
 
   editor.on('component:selected', function (component) {
     if (!component) return;
-    var tag = component.get('tagName');
     var type = component.get('type');
+    if (type !== 'html-embed') {
+      var p = component.parent();
+      while (p) {
+        if (p.get('type') === 'html-embed') {
+          editor.select(p);
+          return;
+        }
+        p = p.parent();
+      }
+    }
+    var tag = component.get('tagName');
     if (type === 'link' || tag === 'a') {
       var opts = [{ id: '', label: '-- Select Page --' }].concat(getPageOptions());
       var traits = component.get('traits');
