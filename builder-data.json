@@ -494,9 +494,12 @@
                       {
                         "type": "link",
                         "attributes": {
-                          "href": "#",
-                          "id": "ir87n"
+                          "href": "about.html",
+                          "id": "ir87n",
+                          "title": "About Page"
                         },
+                        "linkType": "page",
+                        "internalPage": "page-1775074421813",
                         "components": [
                           {
                             "type": "textnode",
