@@ -77,6 +77,7 @@
     #code-panel-html,#code-panel-css{position:relative}
     #code-panel-html .CodeMirror,#code-panel-css .CodeMirror{height:100%;font-size:13px}
     #edit-code-btn:hover{background:#3a3a3a!important;color:#fff!important}
+    #traits textarea{width:100%;min-height:200px;box-sizing:border-box;font-family:ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;font-size:12px;line-height:1.45;resize:vertical}
     .panel-left::-webkit-scrollbar,.tab-content::-webkit-scrollbar,.menu-dropdown::-webkit-scrollbar,#blocks::-webkit-scrollbar{width:5px}
     .panel-left::-webkit-scrollbar-thumb,.tab-content::-webkit-scrollbar-thumb,.menu-dropdown::-webkit-scrollbar-thumb,#blocks::-webkit-scrollbar-thumb{background:#444;border-radius:3px}
     .panel-left::-webkit-scrollbar-thumb:hover,.tab-content::-webkit-scrollbar-thumb:hover{background:#555}
@@ -499,13 +500,25 @@
     },
 
     canvas: {
-      styles: ['https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'],
+      styles: [
+        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+        'data:text/css,' + encodeURIComponent(
+          '.html-embed-component:empty{min-height:72px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;box-sizing:border-box}' +
+          '.html-embed-component:empty::before{content:"HTML embed — paste code in Settings → Embed HTML";display:flex;align-items:center;justify-content:center;height:100%;min-height:72px;padding:12px;box-sizing:border-box;text-align:center;font:13px/1.4 Inter,system-ui,sans-serif;color:#64748b}'
+        ),
+      ],
     },
   });
 
   // =============================================
   // CUSTOM BLOCKS
   // =============================================
+  function isLegacyHtmlEmbedPlaceholder(html) {
+    if (html == null) return false;
+    var s = String(html);
+    return s.indexOf('Paste chat widget HTML here') !== -1;
+  }
+
   var dc = editor.DomComponents;
   dc.addType('html-embed', {
     model: {
@@ -516,22 +529,30 @@
         editable: false,
         highlightable: true,
         attributes: { class: 'html-embed-component' },
-        embedHtml: '<div style="padding:16px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;color:#475569;text-align:center;">Paste chat widget HTML here</div>',
+        embedHtml: '',
         traits: [
           {
             type: 'textarea',
             name: 'embedHtml',
-            label: 'Embed HTML',
-            placeholder: 'Paste HTML, scripts, or third-party embed snippets here',
+            label: 'Embed HTML (paste below)',
+            placeholder: 'Paste your HTML here. This box starts empty.',
             changeProp: true,
           },
         ],
       },
       init: function () {
         var existing = this.get('embedHtml');
-        if ((existing == null || existing === '') && this.components().length) {
+        if (isLegacyHtmlEmbedPlaceholder(existing)) {
+          this.set('embedHtml', '');
+          existing = '';
+        }
+        if (this.components().length) {
           var inner = this.components().map(function (c) { return c.toHTML(); }).join('');
-          if (inner) this.set('embedHtml', inner);
+          if (isLegacyHtmlEmbedPlaceholder(inner)) {
+            this.set('embedHtml', '');
+          } else if ((existing == null || existing === '') && inner) {
+            this.set('embedHtml', inner);
+          }
         }
         this.on('change:embedHtml', this.handleEmbedHtmlChange);
         this.handleEmbedHtmlChange();
@@ -603,7 +624,7 @@
     category: 'Elements',
     content: {
       type: 'html-embed',
-      embedHtml: '<div style="padding:16px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;color:#475569;text-align:center;">Paste chat widget HTML here</div>',
+      embedHtml: '',
     },
   });
 
