@@ -500,15 +500,35 @@
     },
 
     canvas: {
-      styles: [
-        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
-        'data:text/css,' + encodeURIComponent(
-          '.html-embed-component:empty{min-height:72px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;box-sizing:border-box}' +
-          '.html-embed-component:empty::before{content:"HTML embed — paste code in Settings → Embed HTML";display:flex;align-items:center;justify-content:center;height:100%;min-height:72px;padding:12px;box-sizing:border-box;text-align:center;font:13px/1.4 Inter,system-ui,sans-serif;color:#64748b}'
-        ),
-      ],
+      styles: ['https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'],
     },
   });
+
+  (function injectHtmlEmbedCanvasHint() {
+    var css =
+      '.html-embed-component:empty{min-height:72px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc;box-sizing:border-box}' +
+      '.html-embed-component:empty::before{content:"HTML embed: use Settings, then Embed HTML";display:flex;align-items:center;justify-content:center;height:100%;min-height:72px;padding:12px;box-sizing:border-box;text-align:center;font:13px/1.4 Inter,system-ui,sans-serif;color:#64748b}';
+    function addToFrame(win) {
+      try {
+        if (!win || !win.document || !win.document.head) return;
+        var doc = win.document;
+        if (doc.getElementById('gjs-html-embed-hint')) return;
+        var style = doc.createElement('style');
+        style.id = 'gjs-html-embed-hint';
+        style.textContent = css;
+        doc.head.appendChild(style);
+      } catch (e) {
+        console.warn('html-embed canvas hint:', e);
+      }
+    }
+    editor.on('canvas:frame:load:head', function (opts) {
+      addToFrame(opts && opts.window);
+    });
+    try {
+      var cw = editor.Canvas && editor.Canvas.getWindow && editor.Canvas.getWindow();
+      if (cw) addToFrame(cw);
+    } catch (e) {}
+  })();
 
   // =============================================
   // CUSTOM BLOCKS
@@ -821,7 +841,8 @@
     if (!page) return;
     if (!confirm('Delete "' + (page.get('name') || page.getId()) + '"?')) return;
     editor.Pages.remove(page);
-    var first = editor.Pages.getAll().at(0);
+    var allPages = editor.Pages.getAll();
+    var first = allPages[0];
     if (first) editor.Pages.select(first);
     refreshPages();
     setStatus('Page deleted.');
@@ -935,10 +956,22 @@
     if (!owner || !repo) { setStatus('Open from your GitHub Pages URL to auto-detect repo.'); return Promise.resolve(); }
     if (!token) { setStatus('Save your GitHub token in Menu \u2192 Settings first.'); return Promise.resolve(); }
 
-    var ts = new Date().toLocaleString();
-    createVersion('Pre-publish \u00b7 ' + ts, 'auto');
+    try {
+      var ts = new Date().toLocaleString();
+      createVersion('Pre-publish \u00b7 ' + ts, 'auto');
+    } catch (verErr) {
+      console.error('Pre-publish version:', verErr);
+      setStatus('Warning: could not save pre-publish snapshot (' + verErr.message + '). Still publishing\u2026');
+    }
 
-    var pages = collectAllPages();
+    var pages;
+    try {
+      pages = collectAllPages();
+    } catch (exportErr) {
+      setStatus('Publish failed while exporting pages: ' + exportErr.message);
+      console.error(exportErr);
+      return Promise.resolve();
+    }
     setStatus('Publishing ' + pages.length + ' page(s)\u2026');
     var chain = Promise.resolve();
     pages.forEach(function (page) {
@@ -947,7 +980,12 @@
     chain = chain.then(function () { return uploadFile(owner, repo, branch, '.nojekyll', '', token); });
     chain = chain.then(function () {
       setStatus('Saving project data\u2026');
-      var projectJson = JSON.stringify(getProjectData(), null, 2);
+      var projectJson;
+      try {
+        projectJson = JSON.stringify(getProjectData(), null, 2);
+      } catch (serErr) {
+        throw new Error('Could not serialize project for upload: ' + serErr.message);
+      }
       return uploadFile(owner, repo, branch, DATA_FILE, projectJson, token);
     });
     chain = chain.then(function () {
@@ -1272,7 +1310,8 @@
   // DEFAULT CONTENT
   // =============================================
   function ensureDefaultContent() {
-    var home = editor.Pages.getAll().at(0);
+    var allPg = editor.Pages.getAll();
+    var home = allPg[0];
     if (!home) return;
     editor.Pages.select(home);
     var wrapper = editor.getWrapper();
