@@ -875,7 +875,21 @@
                               "html-embed-component"
                             ],
                             "attributes": {},
-                            "embedHtml": "<!--Start of Tawk.to Script--> <script type=\"text/javascript\"> var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); (function(){ var s1=document.createElement(\"script\"),s0=document.getElementsByTagName(\"script\")[0]; s1.async=true; s1.src='https://embed.tawk.to/69d0b7208153c41c3b4dd802/1jlbkmlmr'; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0); })(); </script> <!--End of Tawk.to Script-->"
+                            "embedHtml": "<!--Start of Tawk.to Script--> <script type=\"text/javascript\"> var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); (function(){ var s1=document.createElement(\"script\"),s0=document.getElementsByTagName(\"script\")[0]; s1.async=true; s1.src='https://embed.tawk.to/69d0b7208153c41c3b4dd802/1jlbkmlmr'; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0); })(); </script> <!--End of Tawk.to Script-->",
+                            "components": [
+                              {
+                                "type": "script",
+                                "attributes": {
+                                  "type": "text/javascript"
+                                },
+                                "components": [
+                                  {
+                                    "type": "textnode",
+                                    "content": " var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); (function(){ var s1=document.createElement(\"script\"),s0=document.getElementsByTagName(\"script\")[0]; s1.async=true; s1.src='https://embed.tawk.to/69d0b7208153c41c3b4dd802/1jlbkmlmr'; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0); })(); "
+                                  }
+                                ]
+                              }
+                            ]
                           }
                         ]
                       }
