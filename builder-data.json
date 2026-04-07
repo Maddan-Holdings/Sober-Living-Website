@@ -34,6 +34,20 @@
       }
     },
     {
+      "selectors": [],
+      "selectorsAdd": "*",
+      "style": {
+        "box-sizing": "border-box"
+      }
+    },
+    {
+      "selectors": [],
+      "selectorsAdd": "body",
+      "style": {
+        "margin": "0"
+      }
+    },
+    {
       "selectors": [
         {
           "name": "gjs-row",
@@ -418,32 +432,6 @@
       },
       "mediaText": "(max-width: 768px)",
       "atRuleType": "media"
-    },
-    {
-      "selectors": [
-        "#ivx6f"
-      ],
-      "style": {
-        "padding": "16px",
-        "border": "1px dashed #94a3b8",
-        "border-radius": "8px",
-        "background": "#f8fafc",
-        "color": "#475569",
-        "text-align": "center"
-      }
-    },
-    {
-      "selectors": [
-        "#icd7nn"
-      ],
-      "style": {
-        "padding": "16px",
-        "border": "1px dashed #94a3b8",
-        "border-radius": "8px",
-        "background": "#f8fafc",
-        "color": "black",
-        "text-align": "center"
-      }
     }
   ],
   "pages": [
@@ -668,36 +656,38 @@
                     ]
                   },
                   {
-                    "type": "html-embed",
                     "classes": [
                       "html-embed-component"
                     ],
-                    "attributes": {}
-                  },
-                  {
-                    "type": "text",
-                    "attributes": {
-                      "id": "icd7nn"
-                    },
                     "components": [
                       {
-                        "tagName": "br",
-                        "void": true
-                      },
-                      {
-                        "tagName": "span",
                         "attributes": {
-                          "id": "itlrsj"
+                          "id": "tawk_69d0b7208153c41c3b4dd802"
                         }
                       },
                       {
-                        "tagName": "br",
-                        "void": true
+                        "type": "textnode",
+                        "content": " "
+                      },
+                      {
+                        "type": "comment",
+                        "content": "Start of Tawk.to Script"
+                      },
+                      {
+                        "type": "textnode",
+                        "content": "  "
                       },
                       {
                         "type": "comment",
                         "content": "End of Tawk.to Script"
                       }
+                    ]
+                  },
+                  {
+                    "tagName": "br",
+                    "void": true,
+                    "classes": [
+                      "Apple-interchange-newline"
                     ]
                   }
                 ]
@@ -811,7 +801,7 @@
                                         "components": [
                                           {
                                             "type": "textnode",
-                                            "content": "Secure"
+                                            "content": "test"
                                           }
                                         ]
                                       },
@@ -885,20 +875,7 @@
                               "html-embed-component"
                             ],
                             "attributes": {},
-                            "components": [
-                              {
-                                "type": "text",
-                                "attributes": {
-                                  "id": "ivx6f"
-                                },
-                                "components": [
-                                  {
-                                    "type": "textnode",
-                                    "content": "Paste chat widget HTML here"
-                                  }
-                                ]
-                              }
-                            ]
+                            "embedHtml": "<!--Start of Tawk.to Script--> <script type=\"text/javascript\"> var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); (function(){ var s1=document.createElement(\"script\"),s0=document.getElementsByTagName(\"script\")[0]; s1.async=true; s1.src='https://embed.tawk.to/69d0b7208153c41c3b4dd802/'; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0); })(); </script> <!--End of Tawk.to Script-->"
                           }
                         ]
                       }
